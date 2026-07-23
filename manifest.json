@@ -1,8 +1,5 @@
 {
-  "display_override": [
-    "fullscreen",
-    "standalone",
-  ]
+  "display_override": "standalone",
   "name": "Buku Tamu Pro",
   "short_name": "Buku Tamu",
   "description": "Aplikasi pencatatan buku tamu digital terintegrasi Cloud.",
