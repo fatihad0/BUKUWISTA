@@ -1,19 +1,22 @@
 {
-  "background_color": "#ffffff",
-  "dir": "ltr",
+  "name": "Buku Tamu Pro",
+  "short_name": "BukuTamu",
+  "start_url": "./index.html",
   "display": "standalone",
-  "name": "https://fatihad0.github.io/BUKUWISTA/",
+  "background_color": "#f5f5f5",
+  "theme_color": "#6200EE",
   "orientation": "any",
-  "scope": "/",
-  "short_name": "fatihad0.github",
-  "start_url": "/BUKUWISTA/",
-  "theme_color": "#ffffff",
-  "lang": "id",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
   "display_override": [
     "window-controls-overlay",
     "fullscreen",
     "standalone",
     "minimal-ui",
     "browser"
-  ]
 }
