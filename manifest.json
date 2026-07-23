@@ -1,0 +1,19 @@
+{
+  "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "https://fatihad0.github.io/BUKUWISTA/",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "fatihad0.github",
+  "start_url": "/BUKUWISTA/",
+  "theme_color": "#ffffff",
+  "lang": "id",
+  "display_override": [
+    "window-controls-overlay",
+    "fullscreen",
+    "standalone",
+    "minimal-ui",
+    "browser"
+  ]
+}
