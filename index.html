@@ -7,6 +7,7 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -107,7 +108,8 @@
     <div id="screen-list" class="screen">
         <!-- Tambahan Kotak Pencarian -->
         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 16px;">
-            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal, atau keperluan..." onkeyup="cariTamu()" style="width: 30%; padding: 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
+            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal, atau keperluan..." onkeyup="cariTamu()"
+                style="width: 50%; padding: 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
         </div>
         <div id="data-container"></div>
     </div>
