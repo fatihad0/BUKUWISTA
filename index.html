@@ -57,11 +57,11 @@
 
         .sync-indicator { font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.2); padding: 4px 8px; border-radius: 12px; }
 
-        /* --- CSS NOTIFIKASI TOAST BARU --- */
+        /* --- CSS NOTIFIKASI TOAST --- */
         #toast {
             visibility: hidden;
             min-width: 250px;
-            background-color: #4CAF50; /* Warna hijau sukses */
+            background-color: #4CAF50;
             color: #fff;
             text-align: center;
             border-radius: 8px;
@@ -69,63 +69,30 @@
             position: fixed;
             z-index: 1000;
             left: 50%;
-            bottom: 90px; /* Muncul di atas menu navigasi bawah */
+            bottom: 90px;
             transform: translateX(-50%);
             box-shadow: 0 4px 8px rgba(0,0,0,0.3);
             font-weight: 500;
             transition: opacity 0.3s, bottom 0.3s;
             opacity: 0;
         }
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 100px; /* Sedikit animasi naik */
-        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 100px; }
         
+        /* --- CSS KALENDER --- */
         .calendar-scroll {
-            display: flex;
-            overflow-x: auto;
-            gap: 10px;
-            padding-bottom: 10px;
-            scrollbar-width: thin;
+            display: flex; overflow-x: auto; gap: 10px; padding-bottom: 10px; scrollbar-width: thin;
         }
-
-        .calendar-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .calendar-scroll::-webkit-scrollbar-thumb {
-            background-color: #ccc;
-            border-radius: 10px;
-        }
+        .calendar-scroll::-webkit-scrollbar { height: 6px; }
+        .calendar-scroll::-webkit-scrollbar-thumb { background-color: #ccc; border-radius: 10px; }
         .calendar-date {
-            min-width: 80px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            padding: 10px 5px;
-            text-align: center;
-            background: #f9f9f9;
-            flex-shrink: 0;
+            min-width: 80px; border: 1px solid #e0e0e0; border-radius: 8px; padding: 10px 5px;
+            text-align: center; background: #f9f9f9; flex-shrink: 0;
         }
-        /* Warna khusus jika ada tamu di tanggal tersebut */
-        .calendar-date.has-guest {
-            background: #ede7f6; /* Ungu sangat muda */
-            border-color: #6200EE;
-        }
-        .date-number {
-            font-size: 20px;
-            font-weight: bold;
-            color: #333;
-        }
+        .calendar-date.has-guest { background: #ede7f6; border-color: #6200EE; }
+        .date-number { font-size: 20px; font-weight: bold; color: #333; }
         .guest-name-small {
-            font-size: 11px;
-            color: #6200EE;
-            display: block;
-            margin-top: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 70px;
+            font-size: 11px; color: #6200EE; display: block; margin-top: 5px;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70px;
         }
     </style>
 </head>
@@ -136,12 +103,11 @@
         <div class="sync-indicator" id="sync-status"><i class="material-icons" style="font-size:16px;">cloud_sync</i> Loading...</div>
     </div>
 
-    <!-- Tombol Instal Aplikasi (disembunyikan secara default) -->
-<button id="btn-install" style="display: none; padding: 10px 20px; background-color: #6200EE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px;">
-    ⬇️ Instal Buku Tamu Pro
-</button>
+    <!-- Tombol Instal Aplikasi -->
+    <button id="btn-install" style="display: none; padding: 10px 20px; background-color: #6200EE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin: 16px;">
+        ⬇️ Instal Buku Tamu Pro
+    </button>
     
-    <!-- ELEMEN HTML NOTIFIKASI TOAST -->
     <div id="toast">Data berhasil diperbarui!</div>
 
     <datalist id="hint-nama"></datalist><datalist id="hint-asal"></datalist><datalist id="hint-keperluan"></datalist>
@@ -152,36 +118,32 @@
             <div class="dash-box"><div>Total Tamu Saat Ini</div><h2 id="dash-total">0</h2></div>
             <div class="dash-box"><div>Kamar Terisi</div><h2 id="dash-kamar">0</h2></div>
         </div>
-        <!-- ... kartu STATUS KAMAR ... -->
+        
         <div class="card"><div class="card-title" style="margin-bottom: 8px;">Status Kamar</div><div id="room-status-container"></div></div>
         
         <!-- Kalender Kedatangan Bulan Ini -->
-<div class="card" style="margin-top: 15px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <h3 style="color: #6200EE; font-size: 16px; margin-bottom: 10px;">Jadwal Kedatangan Bulan Ini</h3>
-    <!-- Kontainer ini akan diisi secara otomatis oleh JavaScript -->
-    <div id="calendar-container" class="calendar-scroll"></div>
-</div>
+        <div class="card" style="margin-top: 15px; background: var(--card-bg); border-radius: 12px; padding: 15px;">
+            <h3 style="color: var(--primary-color); font-size: 16px; margin-bottom: 10px;">Jadwal Kedatangan Bulan Ini</h3>
+            <div id="calendar-container" class="calendar-scroll"></div>
+        </div>
 
-<!-- Grafik Kedatangan dengan Filter -->
-<div class="card" style="margin-top: 15px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <h3 style="color: #6200EE; font-size: 16px; margin-bottom: 10px;">Grafik Kedatangan</h3>
-    
-    <!-- Filter Rentang Tanggal -->
-    <div style="display: flex; gap: 5px; margin-bottom: 15px; align-items: center;">
-        <input type="date" id="filter-start" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; flex: 1;">
-        <span> - </span>
-        <input type="date" id="filter-end" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; flex: 1;">
-        <button id="btn-filter" style="padding: 5px 10px; background: #6200EE; color: white; border: none; border-radius: 5px;">Filter</button>
+        <!-- Grafik Kedatangan dengan Filter -->
+        <div class="card" style="margin-top: 15px; background: var(--card-bg); border-radius: 12px; padding: 15px;">
+            <h3 style="color: var(--primary-color); font-size: 16px; margin-bottom: 10px;">Grafik Kedatangan</h3>
+            <div style="display: flex; gap: 5px; margin-bottom: 15px; align-items: center;">
+                <input type="date" id="filter-start" style="padding: 5px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); flex: 1;">
+                <span> - </span>
+                <input type="date" id="filter-end" style="padding: 5px; border-radius: 5px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); flex: 1;">
+                <button id="btn-filter" style="padding: 5px 10px; background: var(--primary-color); color: white; border: none; border-radius: 5px; cursor:pointer;">Filter</button>
+            </div>
+            <canvas id="arrivalChart"></canvas>
+        </div>
     </div>
 
-    <canvas id="arrivalChart"></canvas>
-</div>
-        
     <!-- LAYAR 2: DAFTAR TAMU -->
     <div id="screen-list" class="screen">
-        <!-- Tambahan Kotak Pencarian -->
         <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 16px;">
-            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal, atau keperluan..." onkeyup="cariTamu()"
+            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal..." onkeyup="cariTamu()"
                 style="width: 50%; padding: 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
         </div>
         <div id="data-container"></div>
@@ -242,7 +204,7 @@
     </div>
 
     <script>
-        // MASUKKAN URL GOOGLE APPS SCRIPT-MU DI BAWAH INI
+        // URL GOOGLE APPS SCRIPT
         const URL_SCRIPT = "https://script.google.com/macros/s/AKfycbyX7zLzAwPvdmy1V6DuQmk4N4l5R-jNj77F5M61Qo4EEFL8LTTBoQfLoMX9l971uU3w/exec";
 
         let dataTamu = JSON.parse(localStorage.getItem('tamu') || '[]');
@@ -251,19 +213,28 @@
 
         let editIndex = -1;
         let editPenerimaIndex = -1;
-        let chartInstance = null;
+        let myChart = null;
         let timerWaktu = null;
 
-        // --- FUNGSI NOTIFIKASI BARU ---
+        // Helper Konversi Tanggal dari dataTamu ("DD/MM/YYYY, HH.MM.SS") ke "YYYY-MM-DD"
+        function parseTanggalDatang(waktuStr) {
+            if (!waktuStr) return "";
+            try {
+                let datePart = waktuStr.split(',')[0].split(' ')[0]; // Ambil DD/MM/YYYY
+                let parts = datePart.split('/');
+                if (parts.length === 3) {
+                    return `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                }
+                return datePart;
+            } catch(e) { return ""; }
+        }
+
+        // --- FUNGSI NOTIFIKASI ---
         function showNotification(pesan) {
             let toast = document.getElementById("toast");
-            toast.innerText = pesan;          // Ubah teks sesuai pesan yang dikirim
-            toast.classList.add("show");      // Munculkan notifikasi
-
-            // Hilangkan notifikasi secara otomatis setelah 3 detik (3000 ms)
-            setTimeout(() => {
-                toast.classList.remove("show");
-            }, 3000);
+            toast.innerText = pesan;          
+            toast.classList.add("show");      
+            setTimeout(() => { toast.classList.remove("show"); }, 3000);
         }
 
         // --- SISTEM CLOUD & SINKRONISASI ---
@@ -273,7 +244,6 @@
 
         async function fetchDataFromSheet() {
             setSyncStatus("Menyinkronkan...", "cloud_sync");
-
             if (window.AppInventor) {
                 window.AppInventor.setWebViewString("GET_DATA");
             } else {
@@ -301,26 +271,10 @@
             refreshSemuaLayar();
         }
 
-        setInterval(() => {
-            if (window.AppInventor) {
-                let dataFromApp = window.AppInventor.getWebViewString();
-                if (dataFromApp && dataFromApp.startsWith("{") && dataFromApp.includes("tamu")) {
-                    try {
-                        let json = JSON.parse(dataFromApp);
-                        prosesDataDariCloud(json);
-                        window.AppInventor.setWebViewString("");
-                    } catch(e) {}
-                }
-            }
-        }, 1000);
-
         async function sendToCloud(payload) {
             setSyncStatus("Menyimpan...", "cloud_upload");
-
             if (window.AppInventor) {
                 window.AppInventor.setWebViewString("POST|" + JSON.stringify(payload));
-
-                // Memicu notifikasi sukses setelah mengirim ke MIT App Inventor
                 showNotification("Aksi berhasil! Data sedang disimpan.");
             } else {
                 try {
@@ -330,10 +284,7 @@
                         body: JSON.stringify(payload)
                     });
                     setSyncStatus("Tersimpan", "cloud_done");
-
-                    // Memicu notifikasi sukses
                     showNotification("Aksi berhasil tersimpan di Cloud!");
-
                     setTimeout(fetchDataFromSheet, 1500);
                 } catch (err) {
                     setSyncStatus("Offline (Tersimpan Lokal)", "cloud_off");
@@ -347,6 +298,7 @@
             renderList();
             renderKamarList();
             renderPenerimaList();
+            // renderDashboard dipanggil di dalam renderList ketika tidak difilter
         }
 
         // --- SISTEM WAKTU & DROPDOWN ---
@@ -364,10 +316,8 @@
         function updateDropdowns() {
             let selectPenerima = document.getElementById('penerima');
             let selectKamar = document.getElementById('kamar');
-
             selectPenerima.innerHTML = '';
             dataPenerima.forEach(p => selectPenerima.innerHTML += `<option value="${p.nama}">${p.nama}</option>`);
-
             selectKamar.innerHTML = '<option value="">-- Pilih Kamar --</option>';
             dataKamar.forEach(k => selectKamar.innerHTML += `<option value="${k.nama}">${k.nama}</option>`);
         }
@@ -381,12 +331,9 @@
         }
 
         // --- RENDER DAFTAR TAMU ---
-        // Kita menambahkan parameter 'filteredData' agar bisa menampilkan hasil pencarian
         function renderList(filteredData = null) {
             let container = document.getElementById('data-container');
             container.innerHTML = '';
-
-            // Tentukan data mana yang akan dirender: data hasil pencarian ATAU semua data tamu
             let dataToRender = filteredData ? filteredData : dataTamu;
 
             if (dataToRender.length === 0) {
@@ -395,9 +342,7 @@
             }
 
             let reversedData = [...dataToRender].reverse();
-
             reversedData.forEach((g) => {
-                // Sangat penting: kita harus mencari index (i) dari data asli agar Edit dan Hapus tidak salah sasaran
                 let i = dataTamu.indexOf(g);
                 let isAda = (!g.status || g.status.toUpperCase() === 'ADA');
                 let badgeHTML = isAda ? `<span class="badge-status badge-ada">ADA</span>` : `<span class="badge-status badge-keluar">KELUAR</span>`;
@@ -424,7 +369,6 @@
                 </div>`;
             });
 
-            // Hanya simpan ke storage dan perbarui dashboard jika kita TIDAK sedang melakukan pencarian
             if (!filteredData) {
                 localStorage.setItem('tamu', JSON.stringify(dataTamu));
                 updateHints();
@@ -432,22 +376,16 @@
             }
         }
 
-        // --- FUNGSI PENCARIAN TAMU ---
         function cariTamu() {
-            // Ambil teks yang diketik pengguna dan ubah menjadi huruf kecil (agar pencarian tidak peduli huruf besar/kecil)
             let keyword = document.getElementById('search-tamu').value.toLowerCase();
-
             if (keyword === '') {
-                // Jika kotak pencarian kosong, tampilkan semua data
                 renderList();
             } else {
-                // Saring data tamu berdasarkan nama, asal, atau keperluan
                 let hasilCari = dataTamu.filter(t =>
                     (t.nama && t.nama.toLowerCase().includes(keyword)) ||
                     (t.asal && t.asal.toLowerCase().includes(keyword)) ||
                     (t.keperluan && t.keperluan.toLowerCase().includes(keyword))
                 );
-                // Render ulang layar dengan data hasil pencarian saja
                 renderList(hasilCari);
             }
         }
@@ -462,7 +400,6 @@
                 t.waktuKeluar = '';
             }
             renderList();
-
             if(t.rowIndex) {
                 sendToCloud({
                     action: "updateGuest", rowIndex: t.rowIndex,
@@ -470,66 +407,134 @@
                     kamar: t.kamar, keperluan: t.keperluan, penerima: t.penerima,
                     status: t.status, waktuKeluar: t.waktuKeluar
                 });
-            } else {
-                alert("Mohon tunggu sinkronisasi data awal selesai sebelum melakukan Check-out.");
             }
         }
 
-        // --- DASHBOARD ---
-function renderDashboard() {
-    let totalOrang = 0; // Variabel baru untuk menghitung total orang
+        // --- DASHBOARD & KALENDER (TERHUBUNG DATA ASLI) ---
+        function renderDashboard() {
+            let totalOrang = 0;
+            let statusKamar = {};
+            dataKamar.forEach(k => { statusKamar[k.nama] = []; });
+            let kamarTerisiCount = 0;
 
-    let statusKamar = {};
-    dataKamar.forEach(k => { statusKamar[k.nama] = []; });
-
-    let kamarTerisiCount = 0;
-
-    // Memeriksa setiap data tamu satu per satu
-    dataTamu.forEach(t => {
-        let isAda = (!t.status || t.status.toUpperCase() === 'ADA');
-
-        // 1. Menghitung Total Tamu + Pengikut (Hanya yang berstatus ADA)
-        if (isAda) {
-            // Ubah teks pengikut menjadi angka matematika. Jika kosong, anggap 0.
-            let jumlahPengikut = parseInt(t.pengikut) || 0;
-            // Tambahkan 1 (Tamu Utama) + jumlah pengikutnya ke total keseluruhan
-            totalOrang += (1 + jumlahPengikut);
-        }
-
-        // 2. Memasukkan tamu ke dalam status kamar
-        if(t.kamar && statusKamar[t.kamar] !== undefined && isAda) {
-            statusKamar[t.kamar].push(t.nama);
-        }
-    });
-
-    // Menampilkan angka total orang ke layar Beranda
-    document.getElementById('dash-total').innerText = totalOrang;
-
-    let htmlKamar = '';
-    for (let k in statusKamar) {
-        let isFilled = statusKamar[k].length > 0;
-        if(isFilled) kamarTerisiCount++;
-        htmlKamar += `<div style="margin-bottom: 8px;"><span class="room-badge ${isFilled ? 'room-filled' : 'room-empty'}">${k}</span> <span style="font-size: 13px;">${isFilled ? `(${statusKamar[k].join(', ')})` : '(Kosong)'}</span></div>`;
-    }
-    document.getElementById('dash-kamar').innerText = kamarTerisiCount;
-    document.getElementById('room-status-container').innerHTML = htmlKamar;
-
-    updateChart();
-}
-
-        function updateChart() {
-            let labelGrafik = [], dataGrafik = []; let countPerDay = {};
             dataTamu.forEach(t => {
-                if(t.waktu) {
-                    let tanggalSaja = t.waktu.split(',')[0] || t.waktu.split(' ')[0];
-                    countPerDay[tanggalSaja] = (countPerDay[tanggalSaja] || 0) + 1;
+                let isAda = (!t.status || t.status.toUpperCase() === 'ADA');
+                if (isAda) {
+                    let jumlahPengikut = parseInt(t.pengikut) || 0;
+                    totalOrang += (1 + jumlahPengikut);
+                }
+                if(t.kamar && statusKamar[t.kamar] !== undefined && isAda) {
+                    statusKamar[t.kamar].push(t.nama);
                 }
             });
-            for(let tgl in countPerDay){ labelGrafik.push(tgl); dataGrafik.push(countPerDay[tgl]); }
-            let ctx = document.getElementById('tamuChart').getContext('2d');
-            if(chartInstance) chartInstance.destroy();
-            chartInstance = new Chart(ctx, { type: 'bar', data: { labels: labelGrafik.length ? labelGrafik : ['Belum ada'], datasets: [{ label: 'Tamu Masuk', data: dataGrafik.length ? dataGrafik : [0], backgroundColor: 'rgba(98, 0, 238, 0.5)' }] } });
+
+            document.getElementById('dash-total').innerText = totalOrang;
+            let htmlKamar = '';
+            for (let k in statusKamar) {
+                let isFilled = statusKamar[k].length > 0;
+                if(isFilled) kamarTerisiCount++;
+                htmlKamar += `<div style="margin-bottom: 8px;"><span class="room-badge ${isFilled ? 'room-filled' : 'room-empty'}">${k}</span> <span style="font-size: 13px;">${isFilled ? `(${statusKamar[k].join(', ')})` : '(Kosong)'}</span></div>`;
+            }
+            document.getElementById('dash-kamar').innerText = kamarTerisiCount;
+            document.getElementById('room-status-container').innerHTML = htmlKamar;
+
+            renderCalendar();
+            
+            // Panggil grafik dengan filter saat ini
+            let start = document.getElementById('filter-start')?.value;
+            let end = document.getElementById('filter-end')?.value;
+            if(start && end && myChart) updateArrivalChart(start, end);
         }
+
+        function renderCalendar() {
+            const container = document.getElementById('calendar-container');
+            if(!container) return;
+            container.innerHTML = ''; 
+            
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agt", "Sep", "Okt", "Nov", "Des"];
+
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                
+                // Cari tamu yang datang pada tanggal ini berdasar data asli
+                const guestsToday = dataTamu.filter(g => parseTanggalDatang(g.waktu) === dateString);
+                const hasGuest = guestsToday.length > 0;
+
+                let namesHtml = '';
+                if (hasGuest) {
+                    guestsToday.slice(0, 2).forEach(g => {
+                        namesHtml += `<span class="guest-name-small">${g.nama}</span>`;
+                    });
+                    if (guestsToday.length > 2) {
+                        namesHtml += `<span class="guest-name-small">+${guestsToday.length - 2} lagi</span>`;
+                    }
+                }
+
+                const dateCard = document.createElement('div');
+                dateCard.className = `calendar-date ${hasGuest ? 'has-guest' : ''}`;
+                dateCard.innerHTML = `
+                    <div style="font-size: 12px; color: #666;">${monthNames[month]}</div>
+                    <div class="date-number">${day}</div>
+                    ${namesHtml}
+                `;
+                container.appendChild(dateCard);
+            }
+        }
+
+        // --- CHART JS (TERHUBUNG DATA ASLI) ---
+        function initChart() {
+            const ctx = document.getElementById('arrivalChart');
+            if(!ctx) return;
+            myChart = new Chart(ctx.getContext('2d'), {
+                type: 'bar',
+                data: { labels: [], datasets: [] },
+                options: {
+                    responsive: true,
+                    scales: { y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } } }
+                }
+            });
+        }
+
+        function updateArrivalChart(startDate, endDate) {
+            if(!myChart) return;
+            const filteredData = dataTamu.filter(g => {
+                let tgl = parseTanggalDatang(g.waktu);
+                return tgl >= startDate && tgl <= endDate;
+            });
+
+            const dailyTotals = {};
+            filteredData.forEach(g => {
+                let tgl = parseTanggalDatang(g.waktu);
+                if (!dailyTotals[tgl]) { dailyTotals[tgl] = 0; }
+                dailyTotals[tgl] += (1 + parseInt(g.pengikut || 0));
+            });
+
+            const labels = Object.keys(dailyTotals).sort();
+            const dataPoints = labels.map(date => dailyTotals[date]);
+
+            myChart.data.labels = labels.length ? labels : ['Belum ada'];
+            myChart.data.datasets = [{
+                label: 'Total Kedatangan (Termasuk Pengikut)',
+                data: dataPoints.length ? dataPoints : [0],
+                backgroundColor: '#9d72ff',
+                borderRadius: 5
+            }];
+            myChart.update();
+        }
+
+        document.getElementById('btn-filter')?.addEventListener('click', () => {
+            const start = document.getElementById('filter-start').value;
+            const end = document.getElementById('filter-end').value;
+            if(start && end) {
+                updateArrivalChart(start, end);
+            } else {
+                alert("Pilih rentang tanggal terlebih dahulu!");
+            }
+        });
 
         // --- AKSI FORM TAMU ---
         function openForm() {
@@ -566,7 +571,6 @@ function renderDashboard() {
         document.getElementById('f').onsubmit = e => {
             e.preventDefault();
             let dataLama = (editIndex !== -1) ? dataTamu[editIndex] : {};
-
             let d = {
                 waktu: document.getElementById('waktu').value,
                 penerima: document.getElementById('penerima').value,
@@ -592,17 +596,14 @@ function renderDashboard() {
             switchTab('list');
         };
 
-        // --- KELOLA KAMAR ---
+        // --- KELOLA KAMAR & PENERIMA ---
         function renderKamarList() {
             let container = document.getElementById('kamar-container'); container.innerHTML = '';
             dataKamar.forEach((k, i) => {
                 container.innerHTML += `<div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <b>Kamar ${k.nama}</b>
-                    <button class="btn-action btn-del" onclick="hapusKamar(${i})">Hapus</button>
-                </div>`;
+                    <b>Kamar ${k.nama}</b><button class="btn-action btn-del" onclick="hapusKamar(${i})">Hapus</button></div>`;
             });
         }
-
         function tambahKamarPrompt() {
             let k = prompt("Masukkan Nama / Nomor Kamar Baru:");
             if(k) {
@@ -612,33 +613,25 @@ function renderDashboard() {
                 sendToCloud({ action: "addKamar", namaKamar: k });
             }
         }
-
         function hapusKamar(i) {
             if(confirm("Hapus kamar ini?")) {
-                let target = dataKamar[i];
-                dataKamar.splice(i, 1);
+                let target = dataKamar[i]; dataKamar.splice(i, 1);
                 localStorage.setItem('kamarData', JSON.stringify(dataKamar));
                 updateDropdowns(); renderKamarList();
                 if(target.rowIndex) sendToCloud({ action: "deleteKamar", rowIndex: target.rowIndex });
             }
         }
 
-        // --- KELOLA PENERIMA (CV) ---
         function renderPenerimaList() {
             let container = document.getElementById('penerima-container'); container.innerHTML = '';
             dataPenerima.forEach((p, i) => {
-                container.innerHTML += `<div class="card">
-                    <div class="card-title">${p.nama}</div>
+                container.innerHTML += `<div class="card"><div class="card-title">${p.nama}</div>
                     <div style="font-size:14px; margin-top:4px;">No HP: <b>${p.noHP || '-'}</b></div>
                     <div style="font-size:14px;">Alamat: ${p.alamat || '-'}</div>
-                    <div class="card-actions">
-                        <button class="btn-action btn-edit" onclick="bukaFormPenerima(${i})">Edit</button>
-                        <button class="btn-action btn-del" onclick="hapusPenerima(${i})">Hapus</button>
-                    </div>
-                </div>`;
+                    <div class="card-actions"><button class="btn-action btn-edit" onclick="bukaFormPenerima(${i})">Edit</button>
+                    <button class="btn-action btn-del" onclick="hapusPenerima(${i})">Hapus</button></div></div>`;
             });
         }
-
         function bukaFormPenerima(i) {
             editPenerimaIndex = i;
             if(i === -1) { document.getElementById('form-penerima').reset(); }
@@ -650,13 +643,11 @@ function renderDashboard() {
             }
             switchTab('penerima-form');
         }
-
         document.getElementById('form-penerima').onsubmit = e => {
             e.preventDefault();
             let nama = document.getElementById('p-nama').value;
             let noHP = document.getElementById('p-nohp').value;
             let alamat = document.getElementById('p-alamat').value;
-
             if(editPenerimaIndex === -1) {
                 dataPenerima.push({ nama, noHP, alamat });
                 sendToCloud({ action: "addPenerima", nama, noHP, alamat });
@@ -665,15 +656,12 @@ function renderDashboard() {
                 target.nama = nama; target.noHP = noHP; target.alamat = alamat;
                 if(target.rowIndex) sendToCloud({ action: "updatePenerima", rowIndex: target.rowIndex, nama, noHP, alamat });
             }
-
             localStorage.setItem('penerimaData', JSON.stringify(dataPenerima));
             updateDropdowns(); renderPenerimaList(); switchTab('penerima-list');
         };
-
         function hapusPenerima(i) {
             if(confirm("Hapus penerima ini?")) {
-                let target = dataPenerima[i];
-                dataPenerima.splice(i, 1);
+                let target = dataPenerima[i]; dataPenerima.splice(i, 1);
                 localStorage.setItem('penerimaData', JSON.stringify(dataPenerima));
                 updateDropdowns(); renderPenerimaList();
                 if(target.rowIndex) sendToCloud({ action: "deletePenerima", rowIndex: target.rowIndex });
@@ -729,202 +717,47 @@ function renderDashboard() {
             }
         }
 
-        // Panggil Sinkronisasi saat web pertama dibuka!
-        fetchDataFromSheet();
+        // --- INISIALISASI AWAL ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            
+            // Set filter 7 hari terakhir
+            const today = new Date();
+            const lastWeek = new Date(today);
+            lastWeek.setDate(lastWeek.getDate() - 7);
+            
+            let elEnd = document.getElementById('filter-end');
+            let elStart = document.getElementById('filter-start');
+            if(elEnd) elEnd.value = today.toISOString().split('T')[0];
+            if(elStart) elStart.value = lastWeek.toISOString().split('T')[0];
 
-        // --- REGISTRASI SERVICE WORKER UNTUK PWA ---
+            fetchDataFromSheet();
+        });
+
+        // --- SERVICE WORKER (PWA) ---
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js')
-                    .then(registration => {
-                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
-                    })
-                    .catch(error => {
-                        console.log('ServiceWorker registration failed: ', error);
-                    });
+                    .catch(error => { console.log('ServiceWorker registration failed: ', error); });
             });
         }
 
-    let deferredPrompt;
-    const installButton = document.getElementById('btn-install');
-
-    // 1. Tangkap event ketika browser siap menginstal PWA
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Cegah browser menampilkan pop-up instalasi default secara otomatis (untuk browser lama)
-        e.preventDefault();
-        
-        // Simpan event untuk dipanggil nanti saat tombol diklik
-        deferredPrompt = e;
-        
-        // Tampilkan tombol instalasi khusus yang kita buat di HTML
-        installButton.style.display = 'block';
-    });
-
-    // 2. Apa yang terjadi saat tombol "Instal" diklik
-    installButton.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            // Tampilkan pop-up instalasi bawaan browser/perangkat
-            deferredPrompt.prompt();
-            
-            // Tunggu respons dari pengguna (apakah mereka menekan "Instal" atau "Batal")
-            const { outcome } = await deferredPrompt.userChoice;
-            if (outcome === 'accepted') {
-                console.log('Pengguna setuju menginstal aplikasi');
-            } else {
-                console.log('Pengguna membatalkan instalasi');
+        let deferredPrompt;
+        const installButton = document.getElementById('btn-install');
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault(); deferredPrompt = e; installButton.style.display = 'block';
+        });
+        installButton?.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installButton.style.display = 'none';
             }
-            
-            // Setelah digunakan, prompt tidak bisa dipakai lagi, jadi kita kosongkan
-            deferredPrompt = null;
-            
-            // Sembunyikan tombol setelah diklik
+        });
+        window.addEventListener('appinstalled', (evt) => {
             installButton.style.display = 'none';
-        }
-    });
-
-    // 3. (Opsional) Lakukan sesuatu jika aplikasi berhasil diinstal
-    window.addEventListener('appinstalled', (evt) => {
-        console.log('Buku Tamu Pro berhasil diinstal di perangkat!');
-        // Pastikan tombol disembunyikan jika sudah terinstal
-        installButton.style.display = 'none';
-    });
-
-        // Contoh struktur data tamu (sesuaikan dengan data dari API Google Apps Script Anda)
-// Asumsi 'pengikut' adalah angka (jumlah pengikut)
-let guestData = [
-    { nama: "Budi", tanggal_datang: "2023-11-05", pengikut: 2 },
-    { nama: "Siti", tanggal_datang: "2023-11-05", pengikut: 0 },
-    { nama: "Andi", tanggal_datang: "2023-11-10", pengikut: 1 }
-];
-
-// 1. FUNGSI RENDER KALENDER BULAN INI
-function renderCalendar() {
-    const container = document.getElementById('calendar-container');
-    container.innerHTML = ''; // Kosongkan dulu
-    
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    for (let day = 1; day <= daysInMonth; day++) {
-        // Format tanggal ke YYYY-MM-DD untuk pencocokan
-        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        // Cari tamu yang datang pada tanggal ini
-        const guestsToday = guestData.filter(g => g.tanggal_datang === dateString);
-        const hasGuest = guestsToday.length > 0;
-
-        let namesHtml = '';
-        if (hasGuest) {
-            // Ambil maksimal 2 nama agar kotak tidak terlalu panjang
-            guestsToday.slice(0, 2).forEach(g => {
-                namesHtml += `<span class="guest-name-small">${g.nama}</span>`;
-            });
-            if (guestsToday.length > 2) {
-                namesHtml += `<span class="guest-name-small">+${guestsToday.length - 2} lagi</span>`;
-            }
-        }
-
-        const dateCard = document.createElement('div');
-        dateCard.className = `calendar-date ${hasGuest ? 'has-guest' : ''}`;
-        dateCard.innerHTML = `
-            <div style="font-size: 12px; color: #666;">Nov</div> <!-- Ubah bulan dinamis jika perlu -->
-            <div class="date-number">${day}</div>
-            ${namesHtml}
-        `;
-        container.appendChild(dateCard);
-    }
-}
-
-// 2. FUNGSI INISIALISASI DAN UPDATE GRAFIK
-let myChart;
-function initChart() {
-    const ctx = document.getElementById('arrivalChart').getContext('2d');
-    myChart = new Chart(ctx, {
-        type: 'bar',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        stepSize: 1, // MEMASTIKAN HITUNGAN BULAT (Tidak ada 1.5 tamu)
-                        precision: 0 
-                    }
-                }
-            }
-        }
-    });
-}
-
-function updateChart(startDate, endDate) {
-    // Filter data berdasarkan rentang waktu
-    const filteredData = guestData.filter(g => {
-        return g.tanggal_datang >= startDate && g.tanggal_datang <= endDate;
-    });
-
-    // Kelompokkan dan hitung total per hari (Tamu Utama + Pengikut)
-    const dailyTotals = {};
-    filteredData.forEach(g => {
-        if (!dailyTotals[g.tanggal_datang]) {
-            dailyTotals[g.tanggal_datang] = 0;
-        }
-        // Hitung 1 (tamu utama) + jumlah pengikut
-        dailyTotals[g.tanggal_datang] += (1 + parseInt(g.pengikut || 0));
-    });
-
-    // Urutkan tanggal
-    const labels = Object.keys(dailyTotals).sort();
-    const dataPoints = labels.map(date => dailyTotals[date]);
-
-    // Update data di Chart.js
-    myChart.data.labels = labels;
-    myChart.data.datasets = [{
-        label: 'Total Kedatangan (Termasuk Pengikut)',
-        data: dataPoints,
-        backgroundColor: '#9d72ff',
-        borderRadius: 5
-    }];
-    myChart.update();
-}
-
-// 3. JALANKAN SAAT HALAMAN DIMUAT
-document.addEventListener('DOMContentLoaded', () => {
-    renderCalendar();
-    initChart();
-    
-    // Set default filter (misal: 7 hari terakhir)
-    const today = new Date();
-    const lastWeek = new Date(today);
-    lastWeek.setDate(lastWeek.getDate() - 7);
-    
-    document.getElementById('filter-end').value = today.toISOString().split('T')[0];
-    document.getElementById('filter-start').value = lastWeek.toISOString().split('T')[0];
-    
-    // Tampilkan grafik awal
-    updateChart(document.getElementById('filter-start').value, document.getElementById('filter-end').value);
-});
-
-// 4. EVENT LISTENER UNTUK TOMBOL FILTER
-document.getElementById('btn-filter').addEventListener('click', () => {
-    const start = document.getElementById('filter-start').value;
-    const end = document.getElementById('filter-end').value;
-    if(start && end) {
-        updateChart(start, end);
-    } else {
-        alert("Pilih rentang tanggal terlebih dahulu!");
-    }
-});
-    <!-- Kode Buku Tamu kamu di sini -->
-
-    if (typeof navigator.serviceWorker !== 'undefined') {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('Service Worker berhasil didaftarkan!'))
-        .catch((error) => console.log('Gagal mendaftar Service Worker:', error));
-    }
-  
+        });
     </script>
 </body>
 </html>
