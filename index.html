@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <meta name="theme-color" content="#6200EE">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="...BUKUWISTA/android/launchericon-144x144.png">
-    <link rel="apple-touch-icon" href="...BUKUWISTA/android/launchericon-512x512.png">
+    <link rel="apple-touch-icon" href=".../BUKUWISTA/android/launchericon-144x144.png">
+    <link rel="apple-touch-icon" href=".../BUKUWISTA/android/launchericon-512x512.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -81,6 +81,52 @@
             opacity: 1;
             bottom: 100px; /* Sedikit animasi naik */
         }
+        
+        .calendar-scroll {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+
+        .calendar-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .calendar-scroll::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 10px;
+        }
+        .calendar-date {
+            min-width: 80px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 5px;
+            text-align: center;
+            background: #f9f9f9;
+            flex-shrink: 0;
+        }
+        /* Warna khusus jika ada tamu di tanggal tersebut */
+        .calendar-date.has-guest {
+            background: #ede7f6; /* Ungu sangat muda */
+            border-color: #6200EE;
+        }
+        .date-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        .guest-name-small {
+            font-size: 11px;
+            color: #6200EE;
+            display: block;
+            margin-top: 5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 70px;
+        }
     </style>
 </head>
 <body>
@@ -90,6 +136,11 @@
         <div class="sync-indicator" id="sync-status"><i class="material-icons" style="font-size:16px;">cloud_sync</i> Loading...</div>
     </div>
 
+    <!-- Tombol Instal Aplikasi (disembunyikan secara default) -->
+<button id="btn-install" style="display: none; padding: 10px 20px; background-color: #6200EE; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-bottom: 20px;">
+    ⬇️ Instal Buku Tamu Pro
+</button>
+    
     <!-- ELEMEN HTML NOTIFIKASI TOAST -->
     <div id="toast">Data berhasil diperbarui!</div>
 
@@ -101,12 +152,31 @@
             <div class="dash-box"><div>Total Tamu Saat Ini</div><h2 id="dash-total">0</h2></div>
             <div class="dash-box"><div>Kamar Terisi</div><h2 id="dash-kamar">0</h2></div>
         </div>
+        <!-- ... kartu STATUS KAMAR ... -->
         <div class="card"><div class="card-title" style="margin-bottom: 8px;">Status Kamar</div><div id="room-status-container"></div></div>
-        <div class="card"><div class="card-title" style="margin-bottom: 8px;">Grafik Kedatangan</div>
-            <canvas id="tamuChart" width="100" height="60"></canvas>
-        </div>
+        
+        <!-- Kalender Kedatangan Bulan Ini -->
+<div class="card" style="margin-top: 15px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="color: #6200EE; font-size: 16px; margin-bottom: 10px;">Jadwal Kedatangan Bulan Ini</h3>
+    <!-- Kontainer ini akan diisi secara otomatis oleh JavaScript -->
+    <div id="calendar-container" class="calendar-scroll"></div>
+</div>
+
+<!-- Grafik Kedatangan dengan Filter -->
+<div class="card" style="margin-top: 15px; background: white; border-radius: 12px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <h3 style="color: #6200EE; font-size: 16px; margin-bottom: 10px;">Grafik Kedatangan</h3>
+    
+    <!-- Filter Rentang Tanggal -->
+    <div style="display: flex; gap: 5px; margin-bottom: 15px; align-items: center;">
+        <input type="date" id="filter-start" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; flex: 1;">
+        <span> - </span>
+        <input type="date" id="filter-end" style="padding: 5px; border-radius: 5px; border: 1px solid #ccc; flex: 1;">
+        <button id="btn-filter" style="padding: 5px 10px; background: #6200EE; color: white; border: none; border-radius: 5px;">Filter</button>
     </div>
 
+    <canvas id="arrivalChart"></canvas>
+</div>
+        
     <!-- LAYAR 2: DAFTAR TAMU -->
     <div id="screen-list" class="screen">
         <!-- Tambahan Kotak Pencarian -->
@@ -674,6 +744,180 @@ function renderDashboard() {
                     });
             });
         }
+
+    let deferredPrompt;
+    const installButton = document.getElementById('btn-install');
+
+    // 1. Tangkap event ketika browser siap menginstal PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // Cegah browser menampilkan pop-up instalasi default secara otomatis (untuk browser lama)
+        e.preventDefault();
+        
+        // Simpan event untuk dipanggil nanti saat tombol diklik
+        deferredPrompt = e;
+        
+        // Tampilkan tombol instalasi khusus yang kita buat di HTML
+        installButton.style.display = 'block';
+    });
+
+    // 2. Apa yang terjadi saat tombol "Instal" diklik
+    installButton.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Tampilkan pop-up instalasi bawaan browser/perangkat
+            deferredPrompt.prompt();
+            
+            // Tunggu respons dari pengguna (apakah mereka menekan "Instal" atau "Batal")
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('Pengguna setuju menginstal aplikasi');
+            } else {
+                console.log('Pengguna membatalkan instalasi');
+            }
+            
+            // Setelah digunakan, prompt tidak bisa dipakai lagi, jadi kita kosongkan
+            deferredPrompt = null;
+            
+            // Sembunyikan tombol setelah diklik
+            installButton.style.display = 'none';
+        }
+    });
+
+    // 3. (Opsional) Lakukan sesuatu jika aplikasi berhasil diinstal
+    window.addEventListener('appinstalled', (evt) => {
+        console.log('Buku Tamu Pro berhasil diinstal di perangkat!');
+        // Pastikan tombol disembunyikan jika sudah terinstal
+        installButton.style.display = 'none';
+    });
+
+        // Contoh struktur data tamu (sesuaikan dengan data dari API Google Apps Script Anda)
+// Asumsi 'pengikut' adalah angka (jumlah pengikut)
+let guestData = [
+    { nama: "Budi", tanggal_datang: "2023-11-05", pengikut: 2 },
+    { nama: "Siti", tanggal_datang: "2023-11-05", pengikut: 0 },
+    { nama: "Andi", tanggal_datang: "2023-11-10", pengikut: 1 }
+];
+
+// 1. FUNGSI RENDER KALENDER BULAN INI
+function renderCalendar() {
+    const container = document.getElementById('calendar-container');
+    container.innerHTML = ''; // Kosongkan dulu
+    
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let day = 1; day <= daysInMonth; day++) {
+        // Format tanggal ke YYYY-MM-DD untuk pencocokan
+        const dateString = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        // Cari tamu yang datang pada tanggal ini
+        const guestsToday = guestData.filter(g => g.tanggal_datang === dateString);
+        const hasGuest = guestsToday.length > 0;
+
+        let namesHtml = '';
+        if (hasGuest) {
+            // Ambil maksimal 2 nama agar kotak tidak terlalu panjang
+            guestsToday.slice(0, 2).forEach(g => {
+                namesHtml += `<span class="guest-name-small">${g.nama}</span>`;
+            });
+            if (guestsToday.length > 2) {
+                namesHtml += `<span class="guest-name-small">+${guestsToday.length - 2} lagi</span>`;
+            }
+        }
+
+        const dateCard = document.createElement('div');
+        dateCard.className = `calendar-date ${hasGuest ? 'has-guest' : ''}`;
+        dateCard.innerHTML = `
+            <div style="font-size: 12px; color: #666;">Nov</div> <!-- Ubah bulan dinamis jika perlu -->
+            <div class="date-number">${day}</div>
+            ${namesHtml}
+        `;
+        container.appendChild(dateCard);
+    }
+}
+
+// 2. FUNGSI INISIALISASI DAN UPDATE GRAFIK
+let myChart;
+function initChart() {
+    const ctx = document.getElementById('arrivalChart').getContext('2d');
+    myChart = new Chart(ctx, {
+        type: 'bar',
+        data: { labels: [], datasets: [] },
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1, // MEMASTIKAN HITUNGAN BULAT (Tidak ada 1.5 tamu)
+                        precision: 0 
+                    }
+                }
+            }
+        }
+    });
+}
+
+function updateChart(startDate, endDate) {
+    // Filter data berdasarkan rentang waktu
+    const filteredData = guestData.filter(g => {
+        return g.tanggal_datang >= startDate && g.tanggal_datang <= endDate;
+    });
+
+    // Kelompokkan dan hitung total per hari (Tamu Utama + Pengikut)
+    const dailyTotals = {};
+    filteredData.forEach(g => {
+        if (!dailyTotals[g.tanggal_datang]) {
+            dailyTotals[g.tanggal_datang] = 0;
+        }
+        // Hitung 1 (tamu utama) + jumlah pengikut
+        dailyTotals[g.tanggal_datang] += (1 + parseInt(g.pengikut || 0));
+    });
+
+    // Urutkan tanggal
+    const labels = Object.keys(dailyTotals).sort();
+    const dataPoints = labels.map(date => dailyTotals[date]);
+
+    // Update data di Chart.js
+    myChart.data.labels = labels;
+    myChart.data.datasets = [{
+        label: 'Total Kedatangan (Termasuk Pengikut)',
+        data: dataPoints,
+        backgroundColor: '#9d72ff',
+        borderRadius: 5
+    }];
+    myChart.update();
+}
+
+// 3. JALANKAN SAAT HALAMAN DIMUAT
+document.addEventListener('DOMContentLoaded', () => {
+    renderCalendar();
+    initChart();
+    
+    // Set default filter (misal: 7 hari terakhir)
+    const today = new Date();
+    const lastWeek = new Date(today);
+    lastWeek.setDate(lastWeek.getDate() - 7);
+    
+    document.getElementById('filter-end').value = today.toISOString().split('T')[0];
+    document.getElementById('filter-start').value = lastWeek.toISOString().split('T')[0];
+    
+    // Tampilkan grafik awal
+    updateChart(document.getElementById('filter-start').value, document.getElementById('filter-end').value);
+});
+
+// 4. EVENT LISTENER UNTUK TOMBOL FILTER
+document.getElementById('btn-filter').addEventListener('click', () => {
+    const start = document.getElementById('filter-start').value;
+    const end = document.getElementById('filter-end').value;
+    if(start && end) {
+        updateChart(start, end);
+    } else {
+        alert("Pilih rentang tanggal terlebih dahulu!");
+    }
+});
+        
     </script>
 </body>
 </html>
