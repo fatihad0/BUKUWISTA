@@ -7,15 +7,15 @@
     "display": "standalone",
     "display_override": ["tabbed", "standalone", "minimal-ui"],
     "note_taking": {
-      "new_note_url": "/index.html"
+      "new_note_url": "/BUKUWISTA/index.html"
     },
     "orientation": "any",
     
-    /* --- Menambahkan nama folder GitHub --- */
+    /* --- PERBAIKAN: Menambahkan nama folder GitHub --- */
     "scope": "/BUKUWISTA/",
     "start_url": "/BUKUWISTA/index.html",
     /* ------------------------------------------------ */
-    
+
     "icons": [
         {
           "src": "icons/launchericon-128x128.png",
