@@ -2,42 +2,45 @@
     "name": "BukuTamu PRO",
     "short_name": "Tamu Kita",
     "description": "Aplikasi pencatatan buku tamu digital terintegrasi Cloud.",
-    "theme_color": "#03a9f4",
-    "background_color": "#5a0fc8",
     "theme_color": "#6200EE",
+    "background_color": "#5a0fc8",
+    "display": "standalone",
+
+    /* --- PERBAIKAN 1: Mengizinkan multi-tab di desktop --- */
+    "display_override": ["tabbed", "standalone", "minimal-ui"],
+
+    /* --- PERBAIKAN 2: Mendaftarkan fitur Catatan (Notes) --- */
+    "note_taking": {
+      "new_note_url": "/index.html"
+    },
+
     "orientation": "any",
     "scope": "/",
     "start_url": "/index.html",
     "icons": [
         {
-          "src": "android/launchericon-128x128.png",
-            "sizes": "128x128",
-            "type": "image/png",
-            "purpose": "any"
+          "src": "/launchericon-128x128.png",
+          "sizes": "128x128",
+          "type": "image/png",
+          "purpose": "any"
         },
         {
-          "src": "android/launchericon-144x144.png",
+          "src": "/launchericon-144x144.png",
           "sizes": "144x144",
           "type": "image/png",
           "purpose": "any maskable"
         },
         {
-          "src": "android/launchericon-152x152.png",
-           "sizes": "152x152",
+          "src": "/launchericon-192x192.png",
+          "sizes": "192x192",
           "type": "image/png",
           "purpose": "any maskable"
         },
         {
-          "src": "android/launchericon-192x192.png",
-           "sizes": "192x192",
+          "src": "/launchericon-512x512.png",
+          "sizes": "512x512",
           "type": "image/png",
           "purpose": "any maskable"
-        },
-        {
-          "src": "android/launchericon-512x512.png",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "any maskable"
         }
     ]
 }

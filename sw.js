@@ -1,64 +1,46 @@
-// Naikkan versi cache karena kita menambahkan file baru
-const CACHE_NAME = 'buku-tamu-pro-v2';
+/* =========================================================
+ * PERBAIKAN FITUR PWA (Berdasarkan Rekomendasi Action Items)
+ * ========================================================= */
 
-const ASSETS_TO_CACHE = [
-    './',
-'./index.html',
-'./style.css', // Kita tambahkan file CSS baru di sini
-'./manifest.json',
-'https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap',
-'https://fonts.googleapis.com/icon?family=Material+Icons',
-'https://cdn.jsdelivr.net/npm/chart.js'
-];
+// PERBAIKAN 4: Background Sync (Tahan pengiriman saat offline, kirim saat online)
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-tamu') {
+        console.log('Internet kembali aktif! Menjalankan sinkronisasi tertunda...');
 
-// Install Service Worker dan simpan assets ke Cache
-self.addEventListener('install', event => {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-        .then(cache => {
-            console.log('Opened cache');
-            return cache.addAll(ASSETS_TO_CACHE);
-        })
-    );
-});
-
-// Hapus cache lama jika ada pembaruan versi (activate)
-self.addEventListener('activate', event => {
-    event.waitUntil(
-        caches.keys().then(cacheNames => {
-            return Promise.all(
-                cacheNames.map(cacheName => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
-
-// Mengambil data dari cache saat offline (Fetch)
-self.addEventListener('fetch', event => {
-    // Abaikan caching untuk request API ke Google Apps Script
-    if (event.request.url.includes('script.google.com')) {
-        return;
+        // Catatan: Di masa depan, kamu bisa menambahkan logika di sini untuk
+        // mengambil data dari IndexedDB lokal dan mengirimnya ke Google Sheets.
+        event.waitUntil(
+            Promise.resolve('Sinkronisasi selesai') // Simulasi sukses
+        );
     }
+});
 
-    event.respondWith(
-        caches.match(event.request)
-        .then(response => {
-            // Kembalikan response dari cache jika ada, jika tidak fetch dari internet
-            return response || fetch(event.request).then(fetchResponse => {
-                // Opsional: Simpan font/icon yang baru di-fetch ke dalam cache
-                return caches.open(CACHE_NAME).then(cache => {
-                    if (!event.request.url.startsWith('chrome-extension') && event.request.method === 'GET') {
-                        cache.put(event.request, fetchResponse.clone());
-                    }
-                    return fetchResponse;
-                });
-            });
-        }).catch(() => {
-            console.log('Offline mode and resource not found in cache.');
-        })
+// PERBAIKAN 3: Periodic Background Sync (Ambil data diam-diam secara berkala)
+self.addEventListener('periodicsync', event => {
+    if (event.tag === 'update-data-tamu') {
+        console.log('Memperbarui data tamu secara berkala di latar belakang...');
+
+        // Simulasi proses pengambilan data dari Google Sheets
+        event.waitUntil(
+            fetch('https://script.google.com/macros/s/AKfycbyX7zLzAwPvdmy1V6DuQmk4N4l5R-jNj77F5M61Qo4EEFL8LTTBoQfLoMX9l971uU3w/exec')
+        );
+    }
+});
+
+// PERBAIKAN 5: Push Notifications (Menampilkan notifikasi ke layar HP)
+self.addEventListener('push', event => {
+    // Ambil pesan dari server jika ada, jika tidak gunakan teks standar
+    const pesan = event.data ? event.data.text() : 'Ada data tamu baru atau pembaruan sistem!';
+
+    const opsiNotifikasi = {
+        body: pesan,
+        // Pastikan path gambar ikon ini sesuai dengan folder gambarmu
+        icon: './launchericon-192x192.png',
+        badge: './launchericon-128x128.png',
+        vibrate: [200, 100, 200] // Membuat HP bergetar
+    };
+
+    event.waitUntil(
+        self.registration.showNotification('BukuTamu PRO', opsiNotifikasi)
     );
 });

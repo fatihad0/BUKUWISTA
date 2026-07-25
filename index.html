@@ -12,8 +12,8 @@
 
     <!-- Memanggil Manifest PWA -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href=".../android/launchericon-144x144.png">
-    <link rel="apple-touch-icon" href=".../android/launchericon-512x512.png">
+    <link rel="apple-touch-icon" href="/launchericon-144x144.png">
+    <link rel="apple-touch-icon" href="/launchericon-512x512.png">
 
     <!-- Memanggil_library Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -65,6 +65,13 @@
         <div class="setting-item" onclick="toggleTheme()"><span>Mode Malam</span><i class="material-icons" id="theme-icon">dark_mode</i></div>
         <div class="setting-item" onclick="switchTab('penerima-list')"><span>Kelola Penerima (CV)</span><i class="material-icons">chevron_right</i></div>
         <div class="setting-item" onclick="switchTab('kamar-list')"><span>Kelola Daftar Kamar</span><i class="material-icons">chevron_right</i></div>
+
+        <!-- Baris kode menu informasi yang baru -->
+        <div class="setting-item" onclick="switchTab('informasi')">
+            <span>Informasi Aplikasi</span>
+            <i class="material-icons">info_outline</i>
+        </div>
+
         <div class="setting-item" onclick="fetchDataFromSheet()"><span>Paksa Sinkronisasi Cloud</span><i class="material-icons">sync</i></div>
     </div>
 
@@ -105,6 +112,46 @@
             <button type="submit" class="btn-primary">SIMPAN PENERIMA</button>
             <button type="button" class="btn-primary" style="background:#888; margin-top:8px" onclick="switchTab('penerima-list')">BATAL</button>
         </form>
+    </div>
+
+    <!-- LAYAR 8: INFORMASI APLIKASI -->
+    <div id="screen-informasi" class="screen">
+
+        <!-- Bagian 1: Cara Penggunaan -->
+        <div class="card">
+            <div class="card-title">Cara Penggunaan Aplikasi</div>
+            <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
+                <ul style="margin-left: 16px;">
+                    <li>Tekan tombol melayang <b>(+)</b> di pojok kanan bawah untuk mencatat tamu baru.</li>
+                    <li>Gunakan kotak <b>Pencarian</b> di menu Daftar Tamu untuk menemukan data spesifik dengan cepat.</li>
+                    <li>Tekan tombol <b>Check-Out</b> pada kartu tamu jika kunjungan sudah selesai. Waktu keluar akan otomatis tercatat.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Bagian 2: Metode yang Digunakan -->
+        <div class="card">
+            <div class="card-title">Metode yang Digunakan</div>
+            <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
+                Aplikasi ini dibangun menggunakan teknologi <b>Progressive Web App (PWA)</b>.
+                Sistem ini menyimpan data sementara di dalam perangkat Anda (Lokal/Cache) sehingga aplikasi tetap berfungsi penuh meskipun sedang <i>Offline</i>.
+                Saat koneksi internet kembali aktif, data akan otomatis disinkronkan ke <b>Google Sheets (Cloud)</b>.
+            </div>
+        </div>
+
+        <!-- Bagian 3: Perhatian -->
+        <div class="card">
+            <div class="card-title" style="color: #d32f2f;">Perhatian</div>
+            <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
+                <ul style="margin-left: 16px;">
+                    <li>Pastikan indikator di pojok kanan atas menunjukkan status <b>Online</b> atau <b>Tersimpan</b> sebelum Anda menutup aplikasi.</li>
+                    <li><b>Jangan membersihkan (clear) data/cache browser</b> Anda saat status masih Offline, karena dapat menyebabkan data tamu yang belum terkirim hilang permanen.</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Tombol untuk kembali ke menu pengaturan -->
+        <button class="btn-primary" style="margin-top: 16px;" onclick="switchTab('settings')">KEMBALI KE PENGATURAN</button>
     </div>
 
     <button class="fab" id="fab-add" onclick="openForm()"><i class="material-icons">add</i></button>

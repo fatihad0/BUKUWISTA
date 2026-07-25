@@ -528,6 +528,11 @@ function switchTab(tab) {
         document.getElementById('app-title').innerText = editIndex === -1 ? "Tambah Tamu" : "Edit Tamu";
         fab.classList.add('hidden');
     }
+    else if(tab === 'informasi') {
+        document.getElementById('screen-informasi').classList.add('active');
+        document.getElementById('app-title').innerText = "Informasi";
+        fab.classList.add('hidden'); // Menyembunyikan tombol + agar layar rapi
+    }
 }
 
 fetchDataFromSheet();
