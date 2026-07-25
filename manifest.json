@@ -10,8 +10,12 @@
       "new_note_url": "/index.html"
     },
     "orientation": "any",
-    "scope": "/",
-    "start_url": "/index.html",
+    
+    /* --- Menambahkan nama folder GitHub --- */
+    "scope": "/BUKUWISTA/",
+    "start_url": "/BUKUWISTA/index.html",
+    /* ------------------------------------------------ */
+    
     "icons": [
         {
           "src": "icons/launchericon-128x128.png",
