@@ -35,8 +35,8 @@ self.addEventListener('push', event => {
     const opsiNotifikasi = {
         body: pesan,
         // Pastikan path gambar ikon ini sesuai dengan folder gambarmu
-        icon: './launchericon-192x192.png',
-        badge: './launchericon-128x128.png',
+        icon: 'icons/launchericon-192x192.png',
+        badge: 'icons/launchericon-128x128.png',
         vibrate: [200, 100, 200] // Membuat HP bergetar
     };
 
