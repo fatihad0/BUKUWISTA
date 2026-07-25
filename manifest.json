@@ -6,16 +6,10 @@
     "background_color": "#5a0fc8",
     "display": "standalone",
     "display_override": ["tabbed", "standalone", "minimal-ui"],
-    "note_taking": {
-      "new_note_url": "/BUKUWISTA/index.html"
-    },
+    "note_taking": { "new_note_url": "/BUKUWISTA/index.html" },
     "orientation": "any",
-    
-    /* --- PERBAIKAN: Menambahkan nama folder GitHub --- */
     "scope": "/BUKUWISTA/",
     "start_url": "/BUKUWISTA/index.html",
-    /* ------------------------------------------------ */
-
     "icons": [
         {
           "src": "icons/launchericon-128x128.png",
