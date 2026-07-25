@@ -10,7 +10,7 @@
     "categories": ["business", "productivity", "utilities"],
     "prefer_related_applications": false,
     "display": "standalone",
-    "display_override": ["window-controls-overlay", "tabbed", "standalone", "minimal-ui"],
+    "display_override": ["standalone", "fullscreen"],
 
     "note_taking": {
       "new_note_url": "/BUKUWISTA/index.html"
@@ -24,7 +24,7 @@
       "preferred_width": 400
     },
 
-    "orientation": "any",
+    "orientation": "portrait",
     "scope": "/BUKUWISTA/",
     "start_url": "/BUKUWISTA/index.html",
 
