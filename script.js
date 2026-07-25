@@ -9,6 +9,25 @@ let editPenerimaIndex = -1;
 let chartInstance = null;
 let timerWaktu = null;
 
+// Meminta izin pop-up notifikasi saat aplikasi pertama kali dibuka
+document.addEventListener('DOMContentLoaded', () => {
+    if (Notification.permission === 'default') {
+        Notification.requestPermission();
+    }
+});
+
+// Fungsi pembantu untuk memunculkan notifikasi ke sistem HP
+function tampilkanNotifikasiOS(judul, pesan) {
+    if (Notification.permission === 'granted') {
+        new Notification(judul, {
+            body: pesan,
+            icon: 'icons/launchericon-192x192.png', // Pastikan jalur ikon ini benar
+            badge: 'icons/launchericon-128x128.png'
+        });
+    }
+}
+// kode selesai -- Meminta izin pop-up notifikasi saat aplikasi pertama kali dibuka
+
 function showNotification(pesan) {
     let toast = document.getElementById("toast");
     toast.innerText = pesan;
@@ -36,10 +55,20 @@ async function fetchDataFromSheet() {
     }
 }
 
+//fungsi prosesDataDariCloud
 function prosesDataDariCloud(json) {
+    // Simpan jumlah data lama sebelum diperbarui
+    let jumlahTamuLama = dataTamu.length;
+
     if(json.tamu) dataTamu = json.tamu;
     if(json.kamar) dataKamar = json.kamar;
     if(json.penerima) dataPenerima = json.penerima;
+
+    // Logika Notifikasi: Jika jumlah tamu dari Cloud LEBIH BANYAK dari lokal
+    if (jumlahTamuLama > 0 && dataTamu.length > jumlahTamuLama) {
+        let tamuBaru = dataTamu[dataTamu.length - 1]; // Ambil data tamu terakhir
+        tampilkanNotifikasiOS("Data Tamu Baru!", `${tamuBaru.nama} baru saja ditambahkan ke sistem.`);
+    }
 
     localStorage.setItem('tamu', JSON.stringify(dataTamu));
     localStorage.setItem('kamarData', JSON.stringify(dataKamar));
@@ -48,6 +77,7 @@ function prosesDataDariCloud(json) {
     setSyncStatus("Online", "cloud_done");
     refreshSemuaLayar();
 }
+//akhir dari - fungsi prosesDataDariCloud
 
 setInterval(() => {
     if (window.AppInventor) {
@@ -541,4 +571,71 @@ if (typeof navigator.serviceWorker !== 'undefined') {
     navigator.serviceWorker.register('./sw.js')
     .then(() => console.log('Service Worker berhasil didaftarkan!'))
     .catch((error) => console.log('Gagal mendaftar Service Worker:', error));
+}
+
+/* ==========================================
+ *  FUNGSI MENU PENGATURAN TAMBAHAN
+ *  ========================================== */
+
+// 1. Fitur Bagikan (Memanggil fitur Share bawaan HP)
+function bagikanAplikasi() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Buku Tamu WISTA',
+            text: 'Gunakan aplikasi pencatatan Buku Tamu digital ini!',
+            url: window.location.href
+        }).catch((error) => console.log('Gagal membagikan', error));
+    } else {
+        alert("Maaf, fitur bagikan tidak didukung di perangkat/browser ini.");
+    }
+}
+
+// 2. Kontrol Situs (Mengecek dan meminta ulang izin Notifikasi)
+function kontrolSitus() {
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            alert("Izin Notifikasi: DIIZINKAN.\nAplikasi dapat mengirim pemberitahuan.");
+        } else {
+            alert("Izin Notifikasi: DITOLAK.\nBuka pengaturan browser/HP Anda untuk mengizinkan.");
+        }
+    });
+}
+
+// 3. Fitur Zoom
+let currentZoom = 100; // Dimulai dari 100%
+
+function updateZoomDisplay() {
+    // Memperbarui angka di layar
+    document.getElementById('zoom-level-text').innerText = currentZoom + '%';
+    // Menerapkan efek zoom ke seluruh halaman (dibagi 100 karena CSS zoom butuh format desimal, contoh: 1.1)
+    document.body.style.zoom = (currentZoom / 100);
+}
+
+function zoomIn() {
+    if (currentZoom < 200) { // Batas maksimal zoom diperbesar (200%)
+        currentZoom += 10;
+        updateZoomDisplay();
+    }
+}
+
+function zoomOut() {
+    if (currentZoom > 50) { // Batas maksimal zoom diperkecil (50%)
+        currentZoom -= 10;
+        updateZoomDisplay();
+    }
+}
+
+// 4. Fitur Layar Penuh (Fullscreen)
+function toggleFullScreen() {
+    if (!document.fullscreenElement) {
+        // Jika belum layar penuh, maka masuk ke mode layar penuh
+        document.documentElement.requestFullscreen().catch(err => {
+            console.log(`Terjadi kesalahan saat mengaktifkan mode layar penuh: ${err.message}`);
+        });
+    } else {
+        // Jika sudah layar penuh, maka keluar
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        }
+    }
 }

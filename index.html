@@ -65,14 +65,24 @@
         <div class="setting-item" onclick="toggleTheme()"><span>Mode Malam</span><i class="material-icons" id="theme-icon">dark_mode</i></div>
         <div class="setting-item" onclick="switchTab('penerima-list')"><span>Kelola Penerima (CV)</span><i class="material-icons">chevron_right</i></div>
         <div class="setting-item" onclick="switchTab('kamar-list')"><span>Kelola Daftar Kamar</span><i class="material-icons">chevron_right</i></div>
-
-        <!-- Baris kode menu informasi yang baru -->
-        <div class="setting-item" onclick="switchTab('informasi')">
-            <span>Informasi Aplikasi</span>
-            <i class="material-icons">info_outline</i>
-        </div>
-
+        <div class="setting-item" onclick="switchTab('informasi')"><span>Informasi Aplikasi</span><i class="material-icons">info_outline</i></div>
         <div class="setting-item" onclick="fetchDataFromSheet()"><span>Paksa Sinkronisasi Cloud</span><i class="material-icons">sync</i></div>
+        <!-- MULAI KODE BARU: Menu Tambahan -->
+        <div style="padding: 16px 16px 8px 16px; font-size: 12px; color: #888; font-weight: bold;">LANJUTAN</div>
+        <div class="setting-item" onclick="bagikanAplikasi()"><span>Bagikan...</span><i class="material-icons">share</i></div>
+        <div class="setting-item" onclick="kontrolSitus()"><span>Kontrol Situs (Izin)</span><i class="material-icons">security</i></div>
+
+        <div class="setting-item" style="cursor: default;"><span>Zoom</span>
+            <div class="zoom-controls">
+                <button onclick="zoomOut()" class="btn-icon"><i class="material-icons">remove</i></button>
+                <span id="zoom-level-text">100%</span>
+                <button onclick="zoomIn()" class="btn-icon"><i class="material-icons">add</i></button>
+                <div class="divider"></div>
+                <button onclick="toggleFullScreen()" class="btn-icon"><i class="material-icons">fullscreen</i></button>
+            </div>
+        </div>
+        <!-- AKHIR KODE BARU -->
+
     </div>
 
     <!-- LAYAR 4: FORM INPUT TAMU -->

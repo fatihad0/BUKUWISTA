@@ -84,3 +84,47 @@ visibility: visible;
 opacity: 1;
 bottom: 100px;
 }
+
+/* ==========================================
+ *  DESAIN KONTROL ZOOM & FULLSCREEN
+ *  ========================================== */
+.zoom-controls {
+    display: flex; /* Membuat tombol sejajar mendatar */
+    align-items: center;
+    gap: 4px;
+    background: var(--input-bg); /* Mengikuti warna mode gelap/terang */
+    border-radius: 8px;
+    padding: 4px 8px;
+    border: 1px solid var(--input-border);
+}
+
+.zoom-controls #zoom-level-text {
+    width: 45px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.btn-icon {
+    background: transparent;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.btn-icon:hover {
+    background: rgba(128, 128, 128, 0.2); /* Efek abu-abu saat tombol disentuh */
+}
+
+.zoom-controls .divider {
+    width: 1px;
+    height: 20px;
+    background-color: var(--input-border);
+    margin: 0 4px;
+}
