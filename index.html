@@ -53,10 +53,42 @@
 
     <!-- LAYAR 2: DAFTAR TAMU -->
     <div id="screen-list" class="screen">
-        <div style="display: flex; justify-content: flex-end; align-items: center; gap: 10px; margin-bottom: 16px;">
-            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal, atau keperluan..." onkeyup="cariTamu()"
-                style="width: 50%; padding: 12px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
+
+        <!-- Baris Kontrol: Download, Filter, dan Pencarian -->
+        <div style="display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+
+            <!-- MULAI KODE BARU: Tombol Dropdown Unduh Ungu -->
+            <div style="position: relative; display: inline-block;">
+                <button onclick="toggleMenuUnduh()" class="btn-icon" style="background: var(--primary-color); color: white; padding: 10px 14px; border-radius: 8px; display: flex; align-items: center; gap: 4px; border: none; cursor: pointer; font-size: 14px; font-weight: 500;" title="Unduh Data">
+                    <i class="material-icons" style="font-size: 18px;">download</i>
+                    <i class="material-icons" style="font-size: 18px;">arrow_drop_down</i>
+                </button>
+
+                <!-- Kotak Menu Pilihan -->
+                <div id="dropdown-unduh" style="display: none; position: absolute; top: 100%; left: 0; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; min-width: 150px; margin-top: 8px; overflow: hidden;">
+                    <div onclick="pilihFormatUnduh('csv')" style="padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--border-color); font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-color);">
+                        <i class="material-icons" style="font-size: 16px; color: #4CAF50;">table_view</i> Unduh CSV
+                    </div>
+                    <div onclick="pilihFormatUnduh('xml')" style="padding: 12px 16px; cursor: pointer; font-size: 14px; display: flex; align-items: center; gap: 8px; color: var(--text-color);">
+                        <i class="material-icons" style="font-size: 16px; color: #FF9800;">code</i> Unduh XML
+                    </div>
+                </div>
+            </div>
+            <!-- AKHIR KODE BARU -->
+
+            <!-- Dropdown Filter & Sort -->
+            <select id="filter-sort" onchange="terapkanFilterTamu()" style="padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
+                <option value="default">Default</option>
+                <option value="ada">Hanya ADA</option>
+                <option value="az">Nama A - Z</option>
+                <option value="za">Nama Z - A</option>
+            </select>
+
+            <!-- Kotak Pencarian -->
+            <input type="text" id="search-tamu" placeholder="🔍 Cari nama, asal..." onkeyup="terapkanFilterTamu()"
+                   style="flex: 1; min-width: 150px; padding: 10px; border-radius: 8px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-color); outline: none;">
         </div>
+
         <div id="data-container"></div>
     </div>
 

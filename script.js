@@ -201,18 +201,106 @@ function renderList(filteredData = null) {
     }
 }
 
-function cariTamu() {
+/* ==========================================
+   FITUR RENDER, FILTER, DAN URUTKAN TAMU
+   ========================================== */
+// Fungsi mengubah teks "29/8/2026, 21.47.23" menjadi angka waktu digital untuk diurutkan
+function parseWaktuLengkap(waktuStr) {
+    if (!waktuStr) return 0;
+    try {
+        // Mengambil angka tanggal, bulan, tahun, jam, menit, detik
+        let match = waktuStr.match(/(\d+)\/(\d+)\/(\d+)[,\s]+(\d+)[\.:](\d+)[\.:](\d+)/);
+        if (match) {
+            let tgl = match[1], bln = match[2], thn = match[3];
+            let jam = match[4], mnt = match[5], dtk = match[6];
+            return new Date(thn, bln - 1, tgl, jam, mnt, dtk).getTime();
+        }
+        return 0;
+    } catch(e) {
+        return 0;
+    }
+}
+
+function terapkanFilterTamu() {
     let keyword = document.getElementById('search-tamu').value.toLowerCase();
-    if (keyword === '') {
-        renderList();
-    } else {
-        let hasilCari = dataTamu.filter(t =>
+    let urutan = document.getElementById('filter-sort').value;
+
+    // 1. Filter Pencarian Teks
+    let hasilCari = dataTamu.filter(t =>
         (t.nama && t.nama.toLowerCase().includes(keyword)) ||
         (t.asal && t.asal.toLowerCase().includes(keyword)) ||
         (t.keperluan && t.keperluan.toLowerCase().includes(keyword))
-        );
-        renderList(hasilCari);
+    );
+
+    // 2. Filter Dropdown (Hanya ADA)
+    if (urutan === 'ada') {
+        hasilCari = hasilCari.filter(t => (!t.status || t.status.toUpperCase() === 'ADA'));
     }
+
+    // 3. Pengurutan Data (Sorting)
+        hasilCari.sort((a, b) => {
+            if (urutan === 'az') {
+                return (a.nama || '').localeCompare(b.nama || '');
+            } else if (urutan === 'za') {
+                return (b.nama || '').localeCompare(a.nama || '');
+            } else {
+                // Pengaturan Default: Status ADA di atas, lalu urutkan Tanggal Kedatangan Terbaru
+                let statusA = (!a.status || a.status.toUpperCase() === 'ADA') ? 1 : 0;
+                let statusB = (!b.status || b.status.toUpperCase() === 'ADA') ? 1 : 0;
+
+                if (statusA !== statusB) {
+                    return statusB - statusA; // Prioritaskan status ADA di atas KELUAR
+                } else {
+                    // Jika status sama, urutkan berdasarkan waktu kedatangan paling baru
+                    let waktuA = parseWaktuLengkap(a.waktu);
+                    let waktuB = parseWaktuLengkap(b.waktu);
+                    return waktuB - waktuA; // Yang terbaru (angka lebih besar) ditaruh di atas
+                }
+            }
+        });
+
+        renderListDinamis(hasilCari);
+    }
+
+function renderListDinamis(dataToRender) {
+    let container = document.getElementById('data-container');
+    container.innerHTML = '';
+
+    if (dataToRender.length === 0) {
+        container.innerHTML = '<div style="text-align:center; padding: 20px; color: #888;">Data tamu tidak ditemukan</div>';
+        return;
+    }
+
+    dataToRender.forEach((g) => {
+        // Penting: Mencari index asli agar tombol Edit/Hapus/Check-Out tidak salah sasaran
+        let i = dataTamu.indexOf(g);
+        let isAda = (!g.status || g.status.toUpperCase() === 'ADA');
+        let badgeHTML = isAda ? `<span class="badge-status badge-ada">ADA</span>` : `<span class="badge-status badge-keluar">KELUAR</span>`;
+        let infoKeluarHTML = (!isAda && g.waktuKeluar) ? `<div style="margin-top:8px; padding:8px; background:var(--input-bg); border-radius:6px; font-size:13px;"><b>Waktu Keluar:</b> ${g.waktuKeluar}</div>` : '';
+        let btnTeks = isAda ? "Check-Out" : "Batal Keluar";
+        let btnClass = isAda ? "btn-checkout" : "btn-cancel-out";
+
+        container.innerHTML += `
+        <div class="card">
+            <div class="card-header">
+                <div class="card-title" style="display:flex; align-items:center;">${g.nama} ${badgeHTML}</div>
+                <div style="font-size:12px; color:#888;">Masuk:<br>${g.waktu}</div>
+            </div>
+            <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
+                <div>Penerima: <b>${g.penerima}</b> | Kamar: <b>${g.kamar || '-'}</b></div>
+                <div>Pengikut: <b>${g.pengikut || '0'}</b></div>
+                <div>Asal / Instansi: <b>${g.asal || '-'}</b></div>
+                <div>Keperluan: <b>${g.keperluan || '-'}</b></div>
+                <div>Catatan: <b>${g.catatan || '-'}</b></div>
+            </div>
+            ${infoKeluarHTML}
+            <div class="card-actions">
+                <button class="btn-action btn-edit" onclick="editData(${i})">Edit</button>
+                <button class="btn-action ${btnClass}" onclick="toggleCheckout(${i})">${btnTeks}</button>
+                <button class="btn-action btn-del" onclick="hapusTamu(${i})">Hapus</button>
+            </div>
+        </div>`;
+    });
 }
 
 function toggleCheckout(i) {
@@ -530,7 +618,7 @@ function switchTab(tab) {
         document.getElementById('screen-list').classList.add('active');
         document.querySelectorAll('.nav-item')[1].classList.add('active');
         document.getElementById('app-title').innerText = "Daftar Tamu";
-        fab.classList.remove('hidden'); renderList();
+        fab.classList.remove('hidden'); terapkanFilterTamu();
     }
     else if(tab === 'settings') {
         document.getElementById('screen-settings').classList.add('active');
@@ -638,4 +726,127 @@ function toggleFullScreen() {
             document.exitFullscreen();
         }
     }
+}
+
+/* ==========================================
+   FITUR UNDUH DATA (DOWNLOAD CSV)
+   ========================================== */
+
+   // Memunculkan atau menyembunyikan menu unduhan
+   function toggleMenuUnduh() {
+       let menu = document.getElementById('dropdown-unduh');
+       menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+   }
+
+   // Menjalankan unduhan sesuai format yang dipilih
+   function pilihFormatUnduh(format) {
+       document.getElementById('dropdown-unduh').style.display = 'none'; // Sembunyikan menu kembali
+       if (format === 'csv') downloadCSV();
+       else if (format === 'xml') downloadXML();
+   }
+
+   // Fitur Pintar: Menutup dropdown jika pengguna mengklik area kosong di layar
+   window.addEventListener('click', function(e) {
+       let menu = document.getElementById('dropdown-unduh');
+       if (menu && menu.style.display === 'block') {
+           let btn = menu.previousElementSibling; // Mengambil elemen tombol di atasnya
+           if (!menu.contains(e.target) && !btn.contains(e.target)) {
+               menu.style.display = 'none';
+           }
+       }
+   });
+
+function downloadCSV() {
+    if (dataTamu.length === 0) {
+        showNotification("Tidak ada data untuk diunduh.");
+        return;
+    }
+
+    // Membuat Header (Judul Kolom) untuk file CSV
+    let csvContent = "Waktu Masuk,Penerima,Nama Tamu,Pengikut,Asal/Instansi,Keperluan,Kamar/Ruangan,Catatan,Status,Waktu Keluar\n";
+
+    // Memasukkan setiap baris data
+    dataTamu.forEach(t => {
+        // Tanda kutip ganda ("") digunakan agar jika ada koma di dalam teks catatan, format CSV tidak rusak
+        let row = [
+            `"${t.waktu || ''}"`,
+            `"${t.penerima || ''}"`,
+            `"${t.nama || ''}"`,
+            `"${t.pengikut || '0'}"`,
+            `"${t.asal || ''}"`,
+            `"${t.keperluan || ''}"`,
+            `"${t.kamar || ''}"`,
+            `"${t.catatan || ''}"`,
+            `"${t.status || 'ADA'}"`,
+            `"${t.waktuKeluar || ''}"`
+        ];
+        csvContent += row.join(",") + "\n"; // Gabungkan dengan koma, akhiri dengan garis baru
+    });
+
+    // Mengonversi teks menjadi file Blob (Binary Large Object)
+    let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    let url = URL.createObjectURL(blob);
+
+    // Membuat tautan tak terlihat untuk memicu unduhan di browser
+    let link = document.createElement("a");
+    link.setAttribute("href", url);
+
+    // Nama file dinamis dengan tanggal hari ini
+    let namaFile = `Data_Tamu_WISTA_${new Date().toISOString().slice(0,10)}.csv`;
+    link.setAttribute("download", namaFile);
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification("File CSV berhasil diunduh!");
+}
+
+/* ==========================================
+   FITUR UNDUH DATA (DOWNLOAD XML)
+   ========================================== */
+function downloadXML() {
+    if (dataTamu.length === 0) {
+        showNotification("Tidak ada data untuk diunduh.");
+        return;
+    }
+
+    // Fungsi pembersih karakter khusus di dalam (agar tidak hilang)
+    const bersihkanXML = (str) => {
+        if (!str) return "";
+        return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+    };
+
+    // Buka struktur XML
+    let xmlContent = '<?xml version="1.0" encoding="UTF-8"?>\n<DaftarTamu>\n';
+
+    // Masukkan data
+    dataTamu.forEach(t => {
+        xmlContent += "  <Tamu>\n";
+        xmlContent += `    <WaktuMasuk>${bersihkanXML(t.waktu)}</WaktuMasuk>\n`;
+        xmlContent += `    <Penerima>${bersihkanXML(t.penerima)}</Penerima>\n`;
+        xmlContent += `    <NamaTamu>${bersihkanXML(t.nama)}</NamaTamu>\n`;
+        xmlContent += `    <Pengikut>${bersihkanXML(t.pengikut)}</Pengikut>\n`;
+        xmlContent += `    <AsalInstansi>${bersihkanXML(t.asal)}</AsalInstansi>\n`;
+        xmlContent += `    <Keperluan>${bersihkanXML(t.keperluan)}</Keperluan>\n`;
+        xmlContent += `    <Kamar>${bersihkanXML(t.kamar)}</Kamar>\n`;
+        xmlContent += `    <Catatan>${bersihkanXML(t.catatan)}</Catatan>\n`;
+        xmlContent += `    <Status>${bersihkanXML(t.status || 'ADA')}</Status>\n`;
+        xmlContent += `    <WaktuKeluar>${bersihkanXML(t.waktuKeluar)}</WaktuKeluar>\n`;
+        xmlContent += "  </Tamu>\n";
+    });
+
+    xmlContent += "</DaftarTamu>";
+
+    // Buat file dan otomatis terunduh
+    let blob = new Blob([xmlContent], { type: 'application/xml;charset=utf-8;' });
+    let url = URL.createObjectURL(blob);
+    let link = document.createElement("a");
+    link.href = url;
+    link.download = `Data_Tamu_WISTA_${new Date().toISOString().slice(0,10)}.xml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showNotification("File XML berhasil diunduh!");
 }
