@@ -36,8 +36,20 @@
             <div class="dash-box"><div>Total Tamu Saat Ini</div><h2 id="dash-total">0</h2></div>
             <div class="dash-box"><div>Kamar Terisi</div><h2 id="dash-kamar">0</h2></div>
         </div>
-        <div class="card"><div class="card-title" style="margin-bottom: 8px;">Status Kamar</div><div id="room-status-container"></div></div>
+
+        <!-- Bagian Kartu Status Kamar yang Diperbarui -->
         <div class="card">
+            <div class="card-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 8px;">
+                <div class="card-title" style="margin-bottom: 0;">Status Kamar</div>
+                <!-- TOMBOL KIRIM KE WHATSAPP -->
+                <button onclick="kirimRekapWhatsApp()" style="background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                    <i class="material-icons" style="font-size: 16px;">send</i> Kirim WA
+                </button>
+            </div>
+            <div id="room-status-container"></div>
+        </div>
+
+         <div class="card">
             <div class="card-title" style="margin-bottom: 8px;">Grafik Kedatangan</div>
             <!-- Filter Rentang Tanggal -->
             <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;">

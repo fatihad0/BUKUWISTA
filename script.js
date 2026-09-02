@@ -850,3 +850,89 @@ function downloadXML() {
 
     showNotification("File XML berhasil diunduh!");
 }
+
+/* ==========================================
+   FITUR KIRIM REKAP STATUS KE WHATSAPP (VERSI CERDAS)
+   ========================================== */
+function kirimRekapWhatsApp() {
+    // 1. Ambil tanggal hari ini dalam format bahasa Indonesia
+    let options = { day: 'numeric', month: 'long', year: 'numeric' };
+    let tanggalHariIni = new Date().toLocaleDateString('id-ID', options);
+
+    let teksLaporan = `NEWS \n" DAFTAR TAMU, ${tanggalHariIni} "\n\n📌 *STATUS KAMAR*\n\n`;
+
+    let totalOrangSemua = 0;
+    let totalLkGlobal = 0;
+    let totalPrGlobal = 0;
+
+    // 2. Looping data kamar yang terdaftar
+    dataKamar.forEach(k => {
+        let namaKamar = k.nama;
+        let penghuniKamar = [];
+        let catatanKamar = "";
+        let jumlahOrangDiKamar = 0;
+
+        let lkKamar = 0;
+        let prKamar = 0;
+        let adaRincianManual = false;
+
+        // Cari tamu yang statusnya ADA di kamar ini
+        dataTamu.forEach(t => {
+            let isAda = (!t.status || t.status.toUpperCase() === 'ADA');
+            if (isAda && t.kamar === namaKamar) {
+                let jumlahPengikut = parseInt(t.pengikut) || 0;
+                let totalDiTamuIni = 1 + jumlahPengikut; // Tamu utama + pengikut
+
+                jumlahOrangDiKamar += totalDiTamuIni;
+                totalOrangSemua += totalDiTamuIni;
+
+                penghuniKamar.push(t.nama);
+
+                if (t.catatan && t.catatan.trim() !== "") {
+                    catatanKamar = t.catatan;
+
+                    // Deteksi otomatis pola seperti ">Lk 1" atau ">Pr 1" di dalam Catatan
+                    let matchLk = t.catatan.match(/>\s*Lk\s*(\d+)/i);
+                    let matchPr = t.catatan.match(/>\s*Pr\s*(\d+)/i);
+
+                    if (matchLk || matchPr) {
+                        adaRincianManual = true;
+                        if (matchLk) lkKamar += parseInt(matchLk[1]);
+                        if (matchPr) prKamar += parseInt(matchPr[1]);
+                    }
+                }
+            }
+        });
+
+        // Jika di catatan tidak ada rincian >Lk/>Pr tapi ada kata "pasutri", asumsikan 1 Lk dan 1 Pr (jika total 2 orang)
+        if (!adaRincianManual && jumlahOrangDiKamar > 0) {
+            if (catatanKamar.toLowerCase().includes("pasutri") && jumlahOrangDiKamar === 2) {
+                lkKamar = 1;
+                prKamar = 1;
+            } else {
+                // Default: Jika tidak ada keterangan, anggap semuanya Laki-laki (atau sesuaikan kebutuhan)
+                lkKamar = jumlahOrangDiKamar;
+                prKamar = 0;
+            }
+        }
+
+        // Tambahkan ke total global
+        totalLkGlobal += lkKamar;
+        totalPrGlobal += prKamar;
+
+        // Format baris per kamar: 101 : 2 ((pasutri) (Rinciannya) >Lk 1 >Pr 1)
+        if (jumlahOrangDiKamar > 0) {
+            let infoCatatan = catatanKamar ? ` (${catatanKamar})` : "";
+            teksLaporan += `${namaKamar} : ${jumlahOrangDiKamar}${infoCatatan}\n`;
+        } else {
+            teksLaporan += `${namaKamar} :\n`;
+        }
+    });
+
+    // 3. Tambahkan Bagian Total dan Rincian Global yang akurat
+    teksLaporan += `\nTOTAL TAMU : ${totalOrangSemua}\n(Rinciannya)\n  >Lk ${totalLkGlobal}\n  >Pr ${totalPrGlobal}`;
+
+    // 4. Buka WhatsApp
+    let urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksLaporan)}`;
+    window.open(urlWhatsApp, '_blank');
+}
