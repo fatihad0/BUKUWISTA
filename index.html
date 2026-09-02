@@ -95,7 +95,7 @@
     <!-- LAYAR 3: PENGATURAN -->
     <div id="screen-settings" class="screen">
         <div class="setting-item" onclick="toggleTheme()"><span>Mode Malam</span><i class="material-icons" id="theme-icon">dark_mode</i></div>
-        <div class="setting-item" onclick="switchTab('penerima-list')"><span>Kelola Penerima (CV)</span><i class="material-icons">chevron_right</i></div>
+        <div class="setting-item" onclick="switchTab('penerima-list')"><span>Kelola Penerima</span><i class="material-icons">chevron_right</i></div>
         <div class="setting-item" onclick="switchTab('kamar-list')"><span>Kelola Daftar Kamar</span><i class="material-icons">chevron_right</i></div>
         <div class="setting-item" onclick="switchTab('informasi')"><span>Informasi Aplikasi</span><i class="material-icons">info_outline</i></div>
         <div class="setting-item" onclick="fetchDataFromSheet()"><span>Paksa Sinkronisasi Cloud</span><i class="material-icons">sync</i></div>
@@ -161,33 +161,46 @@
         
         <!-- Panduan Penggunaan Sangat Detil -->
         <div class="card">
-            <div class="card-title">Panduan Penggunaan (Langkah demi Langkah)</div>
+            <div class="card-title">Panduan Penggunaan</div>
             <div style="font-size:14px; line-height: 1.7; margin-top: 8px;">
                 <p style="margin-bottom: 8px; font-weight: 500;">1. Membuka Aplikasi:</p>
                 <ul style="margin-left: 20px; margin-bottom: 12px;">
-                    <li>Buka ikon aplikasi <b>Buku Tamu WISTA</b> di layar HP Anda.</li>
+                    <li>Buka peramban (browser) Google Chrome di HP atau komputer Anda, lalu akses tautan aplikasi Buku Tamu WISTA.</li>
+                    <li>Jika aplikasi sudah diinstal melalui menu Install App di peramban, cukup ketuk ikon aplikasi Buku Tamu WISTA langsung dari layar utama (home screen) perangkat Anda.</li>
                 </ul>
 
                 <p style="margin-bottom: 8px; font-weight: 500;">2. Mencatat Tamu Masuk:</p>
                 <ul style="margin-left: 20px; margin-bottom: 12px;">
                     <li>Tekan tombol bulat bertanda <b>(+)</b> di pojok kanan bawah.</li>
-                    <li>Waktu masuk terisi otomatis. Pilih nama Penerima.</li>
-                    <li>Ketik Nama Tamu, jumlah Pengikut, Asal Instansi, dan Keperluan.</li>
-                    <li>Pilih Kamar (jika menginap) dan tambahkan catatan jika ada.</li>
+                    <li>Waktu masuk terisi otomatis.</li>
+                    <li>jika ingin mengedit WAKTU simpan data terlebih dahulu Baru bisa di edit.</li>
+                    <li>Pilih nama Penerima. Ketik Nama Tamu,
+                    <li>jumlah Pengikut, Asal / Instansi, dan Keperluan.</li>
+                    <li>Pilih Kamar (jika menginap) dan tambahkan catatan <i>jika ada</i>.</li>
                     <li>Tekan tombol <b>SIMPAN DATA</b>.</li>
+                    <li>Jika data di <b>EDIT</b> Pastikan DATA Sudah benar sebelum di <b>SIMPAN</b></li>
                 </ul>
 
                 <p style="margin-bottom: 8px; font-weight: 500;">3. Proses Check-Out:</p>
                 <ul style="margin-left: 20px; margin-bottom: 12px;">
                     <li>Masuk ke menu <b>Daftar Tamu</b>.</li>
                     <li>Temukan tamu yang bersangkutan, lalu tekan tombol oranye <b>Check-Out</b>.</li>
+                    <li>Maka Status Di sebelah nama Akan Berubah, Telan lagi untuk membatalkan</li>
                 </ul>
 
-                <p style="margin-bottom: 8px; font-weight: 500;">4. Mengunduh Laporan:</p>
+                <p style="margin-bottom: 8px; font-weight: 500;">4. Mengelola Kamar dan Penerima</p>
+                <ul style="margin-left: 20px;">
+                    <li>Ketuk ikon <b>PENGATURAN</b> di sudut kanan bawah navigasi.</li>
+                    <li>Pilih menu <b>Kelola Daftar Kamar</b> untuk menambah atau menghapus kamar baru.</li>
+                    <li>Pilih menu <b>Kelola Penerima</b> </br>untuk menambah daftar nama orang yang bertugas menerima tamu.</li>
+                </ul>
+                
+                <p style="margin-bottom: 8px; font-weight: 500;">5. Mengunduh Laporan:</p>
                 <ul style="margin-left: 20px;">
                     <li>Di menu Daftar Tamu, ketuk ikon <b>Unduh</b> di sebelah kiri atas.</li>
                     <li>Pilih format <b>CSV</b> atau <b>XML</b> untuk mengunduh rekap data.</li>
                 </ul>
+                
             </div>
         </div>
 
