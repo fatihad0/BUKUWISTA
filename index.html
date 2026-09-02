@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Buku Tamu Pro</title>
+    <title>Buku Tamu WISTA</title>
 
     <!-- Memanggil CSS Eksternal, Font, dan Ikon -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
@@ -156,45 +156,64 @@
         </form>
     </div>
 
-    <!-- LAYAR 8: INFORMASI APLIKASI -->
+        <!-- LAYAR 8: INFORMASI APLIKASI -->
     <div id="screen-informasi" class="screen">
-
-        <!-- Bagian 1: Cara Penggunaan -->
+        
+        <!-- Panduan Penggunaan Sangat Detil -->
         <div class="card">
-            <div class="card-title">Cara Penggunaan Aplikasi</div>
-            <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
-                <ul style="margin-left: 16px;">
-                    <li>Tekan tombol melayang <b>(+)</b> di pojok kanan bawah untuk mencatat tamu baru.</li>
-                    <li>Gunakan kotak <b>Pencarian</b> di menu Daftar Tamu untuk menemukan data spesifik dengan cepat.</li>
-                    <li>Tekan tombol <b>Check-Out</b> pada kartu tamu jika kunjungan sudah selesai. Waktu keluar akan otomatis tercatat.</li>
+            <div class="card-title">Panduan Penggunaan (Langkah demi Langkah)</div>
+            <div style="font-size:14px; line-height: 1.7; margin-top: 8px;">
+                <p style="margin-bottom: 8px; font-weight: 500;">1. Membuka Aplikasi:</p>
+                <ul style="margin-left: 20px; margin-bottom: 12px;">
+                    <li>Buka ikon aplikasi <b>Buku Tamu WISTA</b> di layar HP Anda.</li>
+                </ul>
+
+                <p style="margin-bottom: 8px; font-weight: 500;">2. Mencatat Tamu Masuk:</p>
+                <ul style="margin-left: 20px; margin-bottom: 12px;">
+                    <li>Tekan tombol bulat bertanda <b>(+)</b> di pojok kanan bawah.</li>
+                    <li>Waktu masuk terisi otomatis. Pilih nama Penerima.</li>
+                    <li>Ketik Nama Tamu, jumlah Pengikut, Asal Instansi, dan Keperluan.</li>
+                    <li>Pilih Kamar (jika menginap) dan tambahkan catatan jika ada.</li>
+                    <li>Tekan tombol <b>SIMPAN DATA</b>.</li>
+                </ul>
+
+                <p style="margin-bottom: 8px; font-weight: 500;">3. Proses Check-Out:</p>
+                <ul style="margin-left: 20px; margin-bottom: 12px;">
+                    <li>Masuk ke menu <b>Daftar Tamu</b>.</li>
+                    <li>Temukan tamu yang bersangkutan, lalu tekan tombol oranye <b>Check-Out</b>.</li>
+                </ul>
+
+                <p style="margin-bottom: 8px; font-weight: 500;">4. Mengunduh Laporan:</p>
+                <ul style="margin-left: 20px;">
+                    <li>Di menu Daftar Tamu, ketuk ikon <b>Unduh</b> di sebelah kiri atas.</li>
+                    <li>Pilih format <b>CSV</b> atau <b>XML</b> untuk mengunduh rekap data.</li>
                 </ul>
             </div>
         </div>
 
-        <!-- Bagian 2: Metode yang Digunakan -->
+        <!-- Metode Sistem -->
         <div class="card">
-            <div class="card-title">Metode yang Digunakan</div>
+            <div class="card-title">Metode Sistem</div>
             <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
-                Aplikasi ini dibangun menggunakan teknologi <b>Progressive Web App (PWA)</b>.
-                Sistem ini menyimpan data sementara di dalam perangkat Anda (Lokal/Cache) sehingga aplikasi tetap berfungsi penuh meskipun sedang <i>Offline</i>.
-                Saat koneksi internet kembali aktif, data akan otomatis disinkronkan ke <b>Google Sheets (Cloud)</b>.
+                Aplikasi ini berbasis <b>Progressive Web App (PWA)</b>. Data disimpan secara lokal di perangkat agar tetap bisa diakses saat offline, dan otomatis disinkronkan ke <b>Google Sheets</b> saat terhubung ke internet.
             </div>
         </div>
 
-        <!-- Bagian 3: Perhatian -->
+        <!-- Perhatian Penting -->
         <div class="card">
-            <div class="card-title" style="color: #d32f2f;">Perhatian</div>
+            <div class="card-title" style="color: #d32f2f;">Perhatian Penting</div>
             <div style="font-size:14px; line-height: 1.6; margin-top: 8px;">
                 <ul style="margin-left: 16px;">
-                    <li>Pastikan indikator di pojok kanan atas menunjukkan status <b>Online</b> atau <b>Tersimpan</b> sebelum Anda menutup aplikasi.</li>
-                    <li><b>Jangan membersihkan (clear) data/cache browser</b> Anda saat status masih Offline, karena dapat menyebabkan data tamu yang belum terkirim hilang permanen.</li>
+                    <li>Pastikan indikator pojok kanan atas berstatus <b>Online</b> sebelum menutup aplikasi.</li>
+                    <li>Jangan membersihkan data atau <i>cache</i> peramban saat status offline agar data aman.</li>
                 </ul>
             </div>
         </div>
-
-        <!-- Tombol untuk kembali ke menu pengaturan -->
+        
+        <!-- Tombol Kembali -->
         <button class="btn-primary" style="margin-top: 16px;" onclick="switchTab('settings')">KEMBALI KE PENGATURAN</button>
     </div>
+
 
     <button class="fab" id="fab-add" onclick="openForm()"><i class="material-icons">add</i></button>
 
