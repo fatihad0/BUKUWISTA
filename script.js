@@ -327,32 +327,232 @@ function toggleCheckout(i) {
     }
 }
 
+/* ==========================================
+   FITUR RENDER DASHBOARD & STATUS KAMAR DINAMIS
+   ========================================== */
 function renderDashboard() {
     let totalOrang = 0;
+    let totalDaerahan = 0;
+    let totalLk = 0;
+    let totalPr = 0;
+    let totalAnak = 0;
+
     let statusKamar = {};
     dataKamar.forEach(k => { statusKamar[k.nama] = []; });
     let kamarTerisiCount = 0;
 
+    // 1. Hitung Data Tamu yang Berstatus 'ADA'
     dataTamu.forEach(t => {
         let isAda = (!t.status || t.status.toUpperCase() === 'ADA');
         if (isAda) {
             let jumlahPengikut = parseInt(t.pengikut) || 0;
-            totalOrang += (1 + jumlahPengikut);
-        }
-        if(t.kamar && statusKamar[t.kamar] !== undefined && isAda) {
-            statusKamar[t.kamar].push(t.nama);
+            let totalDiTamu = 1 + jumlahPengikut;
+            totalOrang += totalDiTamu;
+
+            // Hitung Kategori Daerahan (Mengecek kata 'daerah' di kolom Keperluan)
+            let keperluan = (t.keperluan || "").toLowerCase();
+            if (keperluan.includes("daerah")) {
+                totalDaerahan += totalDiTamu;
+            }
+
+            // Merekam Penghuni Kamar
+            if (t.kamar && statusKamar[t.kamar] !== undefined) {
+                statusKamar[t.kamar].push(t.nama);
+            }
+
+            // Deteksi Rincian Lk, Pr, dan Anak dari Catatan
+            let catatan = t.catatan || "";
+            let matchLk = catatan.match(/>\s*Lk\s*(\d+)/i);
+            let matchPr = catatan.match(/>\s*Pr\s*(\d+)/i);
+            let matchAnak = catatan.match(/>\s*(Anak|Bayi|Balita)\s*(\d+)/i);
+
+            let lkCount = matchLk ? parseInt(matchLk[1]) : 0;
+            let prCount = matchPr ? parseInt(matchPr[1]) : 0;
+            let anakCount = matchAnak ? parseInt(matchAnak[2]) : 0;
+
+            if (matchLk || matchPr || matchAnak) {
+                totalLk += lkCount;
+                totalPr += prCount;
+                totalAnak += anakCount;
+            } else {
+                // Jika tidak ada keterangan di catatan, default dianggap Lk
+                totalLk += totalDiTamu;
+            }
         }
     });
 
-    document.getElementById('dash-total').innerText = totalOrang;
+    // 2. Render Kotak Ringkasan Atas (Hanya tampilkan yang nilainya > 0)
+    let summaryHTML = '';
 
+    // Kotak Total Tamu Saat Ini
+    let subDetailDemografi = [];
+    if (totalLk > 0) subDetailDemografi.push(`Lk: ${totalLk}`);
+    if (totalPr > 0) subDetailDemografi.push(`Pr: ${totalPr}`);
+    if (totalAnak > 0) subDetailDemografi.push(`Anak: ${totalAnak}`);
+
+    summaryHTML += `
+        <div class="dash-box">
+            <div>Total Tamu Saat Ini</div>
+            <h2>${totalOrang}</h2>
+            ${subDetailDemografi.length > 0 ? `<div class="dash-sub-info">(${subDetailDemografi.join(' | ')})</div>` : ''}
+        </div>
+    `;
+
+    // Hitung Kamar Terisi
+    for (let k in statusKamar) {
+        if (statusKamar[k].length > 0) {
+            kamarTerisiCount++;
+        }
+    }
+
+    // Kotak Kamar Terisi (Tampil jika > 0)
+    if (kamarTerisiCount > 0) {
+        summaryHTML += `
+            <div class="dash-box">
+                <div>Kamar Terisi</div>
+                <h2>${kamarTerisiCount}</h2>
+            </div>
+        `;
+    }
+
+    // Kotak Tamu Daerahan (Hanya tampil jika ada/lebih dari 0)
+    if (totalDaerahan > 0) {
+        summaryHTML += `
+            <div class="dash-box" style="background: #8CC152;">
+                <div>Tamu Daerahan</div>
+                <h2>${totalDaerahan}</h2>
+            </div>
+        `;
+    }
+
+    document.getElementById('dash-summary-container').innerHTML = summaryHTML;
+
+    // 3. Render Status Kamar (HANYA TAMPILKAN KAMAR TERISI / SEMBUNYIKAN KOSONG)
+    let htmlKamar = '';
+    let adaKamarTerisi = false;
+
+    for (let k in statusKamar) {
+        let isFilled = statusKamar[k].length > 0;
+        // Aturan Sembunyi: Hanya tampilkan jika kamar ada penghuninya
+        if (isFilled) {
+            adaKamarTerisi = true;
+            htmlKamar += `<div style="margin-bottom: 8px;">
+                <span class="room-badge room-filled">${k}</span>
+                <span style="font-size: 13px;">(${statusKamar[k].join(', ')})</span>
+            </div>`;
+        }
+    }
+
+    // Jika seluruh kamar kosong, tampilkan pesan ramah
+    if (!adaKamarTerisi) {
+        htmlKamar = '<div style="font-size: 13px; color: #888; padding: 4px 0;">Semua kamar saat ini kosong.</div>';
+    }
+
+    document.getElementById('room-status-container').innerHTML = htmlKamar;
+
+    // Segarkan Grafik Kedatangan
+    updateChart();
+}
+
+/* ==========================================
+   FITUR DASHBOARD & RINGKASAN BERANDA
+   ========================================== */
+function renderDashboard() {
+    let totalOrang = 0;
+    let totalDaerahan = 0;
+    let totalLk = 0;
+    let totalPr = 0;
+    let totalAnak = 0;
+
+    let statusKamar = {};
+    dataKamar.forEach(k => { statusKamar[k.nama] = []; });
+    let kamarTerisiCount = 0;
+
+    // 1. Olah Data Tamu
+    dataTamu.forEach(t => {
+        let isAda = (!t.status || t.status.toUpperCase() === 'ADA');
+        if (isAda) {
+            let jumlahPengikut = parseInt(t.pengikut) || 0;
+            let totalTamuIni = 1 + jumlahPengikut;
+            totalOrang += totalTamuIni;
+
+            // Hitung Kategori Daerahan dari Keperluan
+            let keperluan = (t.keperluan || "").toLowerCase();
+            if (keperluan.includes("daerah")) {
+                totalDaerahan += totalTamuIni;
+            }
+
+            // Hitung Lk, Pr, dan Anak/Bayi dari Catatan
+            let catatan = (t.catatan || "").toLowerCase();
+            let matchLk = catatan.match(/>\s*lk\s*(\d+)/i);
+            let matchPr = catatan.match(/>\s*pr\s*(\d+)/i);
+            let matchAnak = catatan.match(/>\s*(anak|bayi|balita)\s*(\d+)/i);
+
+            let lkDiTamu = matchLk ? parseInt(matchLk[1]) : 0;
+            let prDiTamu = matchPr ? parseInt(matchPr[1]) : 0;
+            let anakDiTamu = matchAnak ? parseInt(matchAnak[2]) : 0;
+
+            if (matchLk || matchPr || matchAnak) {
+                totalLk += lkDiTamu;
+                totalPr += prDiTamu;
+                totalAnak += anakDiTamu;
+            } else if (catatan.includes("pasutri") && totalTamuIni === 2) {
+                totalLk += 1;
+                totalPr += 1;
+            } else {
+                // Default jika tidak ada catatan khusus
+                totalLk += totalTamuIni;
+            }
+
+            // Masukkan ke Pemetaan Kamar
+            if (t.kamar && statusKamar[t.kamar] !== undefined) {
+                statusKamar[t.kamar].push(t.nama);
+            }
+        }
+    });
+
+    // 2. Render Kartu Ringkasan (Hanya Tampilkan jika > 0)
+    let containerSummary = document.getElementById('summary-cards-container');
+    let htmlSummary = '';
+
+    // Array Kategori yang Akan Diperiksa
+    let kategoriList = [
+        { label: 'Total Tamu', nilai: totalOrang },
+        { label: 'Kamar Terisi', nilai: 0 }, // Ditentukan di bawah
+        { label: 'Daerahan', nilai: totalDaerahan },
+        { label: 'Laki-Laki', nilai: totalLk },
+        { label: 'Perempuan', nilai: totalPr },
+        { label: 'Anak/Bayi', nilai: totalAnak }
+    ];
+
+    // 3. Render Status Kamar (Sembunyikan Kamar Kosong)
     let htmlKamar = '';
     for (let k in statusKamar) {
         let isFilled = statusKamar[k].length > 0;
-        if(isFilled) kamarTerisiCount++;
-        htmlKamar += `<div style="margin-bottom: 8px;"><span class="room-badge ${isFilled ? 'room-filled' : 'room-empty'}">${k}</span> <span style="font-size: 13px;">${isFilled ? `(${statusKamar[k].join(', ')})` : '(Kosong)'}</span></div>`;
+        if (isFilled) {
+            kamarTerisiCount++;
+            htmlKamar += `<div style="margin-bottom: 8px;">
+                <span class="room-badge room-filled">${k}</span>
+                <span style="font-size: 13px;">(${statusKamar[k].join(', ')})</span>
+            </div>`;
+        }
     }
-    document.getElementById('dash-kamar').innerText = kamarTerisiCount;
+
+    // Buat HTML Kartu Ringkasan (Sembunyikan jika bernilai 0)
+    kategoriList.forEach(item => {
+        if (item.nilai > 0) {
+            htmlSummary += `<div class="dash-box">
+                <div>${item.label}</div>
+                <h2>${item.nilai}</h2>
+            </div>`;
+        }
+    });
+
+    if (htmlKamar === '') {
+        htmlKamar = '<div style="font-size: 13px; color: #888;">Semua kamar saat ini kosong.</div>';
+    }
+
+    containerSummary.innerHTML = htmlSummary;
     document.getElementById('room-status-container').innerHTML = htmlKamar;
 
     updateChart();
@@ -374,6 +574,9 @@ function resetFilterGrafik() {
     updateChart();
 }
 
+/* ==========================================
+   FITUR GRAFIK KEDATANGAN (3 KATEGORI)
+   ========================================== */
 function updateChart() {
     let startInput = document.getElementById('filter-start').value;
     let endInput = document.getElementById('filter-end').value;
@@ -381,6 +584,7 @@ function updateChart() {
     let startDate = startInput ? new Date(startInput) : null;
     let endDate = endInput ? new Date(endInput) : null;
 
+    // Jika tidak ada filter, tampilkan 7 hari terakhir secara default
     if (!startDate && !endDate) {
         endDate = new Date();
         startDate = new Date();
@@ -390,8 +594,13 @@ function updateChart() {
     if (startDate) startDate.setHours(0, 0, 0, 0);
     if (endDate) endDate.setHours(23, 59, 59, 999);
 
+    // Variabel Penampung Data
     let countPerDay = {};
+    let totalMenginap = 0;
+    let totalTidakMenginap = 0;
+    let totalDaerahan = 0;
 
+    // Proses dan Kategorisasi Data
     dataTamu.forEach(t => {
         if(t.waktu) {
             let tglObj = parseTanggalIndonesia(t.waktu);
@@ -402,47 +611,112 @@ function updateChart() {
                 if (endDate && tglObj > endDate) isInRange = false;
 
                 if (isInRange) {
-                    let tanggalSaja = t.waktu.split(',')[0].split(' ')[0];
+                    // Buat label tanggal jadi cantik (contoh: "25 Agustus")
+                    let opsiTgl = { day: 'numeric', month: 'long' , year: 'numeric' };
+                    let tanggalLabel = tglObj.toLocaleDateString('id-ID', opsiTgl);
+
                     let jumlahPengikut = parseInt(t.pengikut) || 0;
                     let totalOrang = 1 + jumlahPengikut;
-                    countPerDay[tanggalSaja] = (countPerDay[tanggalSaja] || 0) + totalOrang;
+
+                    // LOGIKA KATEGORI CERDAS
+                    let keperluan = (t.keperluan || "").toLowerCase();
+                    let kamar = (t.kamar || "").toLowerCase();
+                    let kategori = "";
+
+                    if (keperluan.includes("daerah")) {
+                        kategori = "Daerahan";
+                        totalDaerahan += totalOrang;
+                    } else if (kamar === "" || kamar.includes("tidak menginap")) {
+                        kategori = "Tidak Menginap";
+                        totalTidakMenginap += totalOrang;
+                    } else {
+                        kategori = "Menginap";
+                        totalMenginap += totalOrang;
+                    }
+
+                    // Menyiapkan keranjang harian jika belum ada
+                    if (!countPerDay[tanggalLabel]) {
+                        countPerDay[tanggalLabel] = {
+                            tglAsli: tglObj, // Digunakan agar urutan hari tidak acak
+                            menginap: 0,
+                            tidakMenginap: 0,
+                            daerahan: 0
+                        };
+                    }
+
+                    // Masukkan ke keranjang yang tepat
+                    if (kategori === "Daerahan") countPerDay[tanggalLabel].daerahan += totalOrang;
+                    else if (kategori === "Tidak Menginap") countPerDay[tanggalLabel].tidakMenginap += totalOrang;
+                    else countPerDay[tanggalLabel].menginap += totalOrang;
                 }
             }
         }
     });
 
+    // Mengurutkan tanggal dari yang terlama ke terbaru
     let sortedDates = Object.keys(countPerDay).sort((a, b) => {
-        return parseTanggalIndonesia(a) - parseTanggalIndonesia(b);
+        return countPerDay[a].tglAsli - countPerDay[b].tglAsli;
     });
 
+    // Memecah data untuk disuapkan ke Chart.js
     let labelGrafik = [];
-    let dataGrafik = [];
+    let dataMenginap = [];
+    let dataTidakMenginap = [];
+    let dataDaerahan = [];
 
     sortedDates.forEach(tgl => {
         labelGrafik.push(tgl);
-        dataGrafik.push(countPerDay[tgl]);
+        dataMenginap.push(countPerDay[tgl].menginap);
+        dataTidakMenginap.push(countPerDay[tgl].tidakMenginap);
+        dataDaerahan.push(countPerDay[tgl].daerahan);
     });
 
     let ctx = document.getElementById('tamuChart').getContext('2d');
-    if(chartInstance) chartInstance.destroy();
+    if(chartInstance) chartInstance.destroy(); // Bersihkan grafik lama
 
+    // Membuat Grafik Kelompok Baru
     chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: labelGrafik.length ? labelGrafik : ['Belum ada data'],
-            datasets: [{
-                label: 'Total Orang (Tamu + Pengikut)',
-                              data: dataGrafik.length ? dataGrafik : [0],
-                              backgroundColor: 'rgba(98, 0, 238, 0.5)'
-            }]
+            datasets: [
+                {
+                    label: `MENGINAP: ${totalMenginap}`,
+                    data: labelGrafik.length ? dataMenginap : [0],
+                    backgroundColor: '#5D9CEC', // Warna Biru/Teal
+                    borderRadius: 4
+                },
+                {
+                    label: `TIDAK MENGINAP: ${totalTidakMenginap}`,
+                    data: labelGrafik.length ? dataTidakMenginap : [0],
+                    backgroundColor: '#FF9F00', // Warna Oranye
+                    borderRadius: 4
+                },
+                {
+                    label: `DAERAHAN: ${totalDaerahan}`,
+                    data: labelGrafik.length ? dataDaerahan : [0],
+                    backgroundColor: '#8CC152', // Warna Hijau
+                    borderRadius: 4
+                }
+            ]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false, // Memastikan grafik elastis sesuai ukuran wadah
             scales: {
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        stepSize: 1,
+                        stepSize: 1, // Memaksa sumbu Y menampilkan angka bulat saja
                         precision: 0
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    position: 'bottom', // Memindahkan keterangan ke bawah seperti Gambar 2
+                    labels: {
+                        font: { size: 12, weight: 'bold' }
                     }
                 }
             }
@@ -713,7 +987,6 @@ function zoomOut() {
     }
 }
 
-// 4. Fitur Layar Penuh (Fullscreen)
 function toggleFullScreen() {
     if (!document.fullscreenElement) {
         // Jika belum layar penuh, maka masuk ke mode layar penuh

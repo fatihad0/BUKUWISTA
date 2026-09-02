@@ -32,16 +32,14 @@
 
     <!-- LAYAR 1: BERANDA -->
     <div id="screen-beranda" class="screen active">
-        <div class="dash-summary">
-            <div class="dash-box"><div>Total Tamu Saat Ini</div><h2 id="dash-total">0</h2></div>
-            <div class="dash-box"><div>Kamar Terisi</div><h2 id="dash-kamar">0</h2></div>
+        <!-- Wadah Ringkasan Dinamis -->
+        <div class="dash-summary" id="summary-cards-container">
+            <!-- Kartu ringkasan akan diisi otomatis oleh JavaScript -->
         </div>
 
-        <!-- Bagian Kartu Status Kamar yang Diperbarui -->
         <div class="card">
             <div class="card-header" style="border-bottom: none; padding-bottom: 0; margin-bottom: 8px;">
                 <div class="card-title" style="margin-bottom: 0;">Status Kamar</div>
-                <!-- TOMBOL KIRIM KE WHATSAPP -->
                 <button onclick="kirimRekapWhatsApp()" style="background: #25D366; color: white; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; display: flex; align-items: center; gap: 4px;">
                     <i class="material-icons" style="font-size: 16px;">send</i> Kirim WA
                 </button>
@@ -49,7 +47,7 @@
             <div id="room-status-container"></div>
         </div>
 
-         <div class="card">
+        <div class="card">
             <div class="card-title" style="margin-bottom: 8px;">Grafik Kedatangan</div>
             <!-- Filter Rentang Tanggal -->
             <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; align-items: center;">
@@ -59,7 +57,11 @@
                 <button class="btn-primary" style="padding: 8px 12px; width: auto; font-size: 14px;" onclick="updateChart()">Filter</button>
                 <button class="btn-action btn-del" style="padding: 8px 12px; font-size: 14px; margin: 0;" onclick="resetFilterGrafik()">Reset</button>
             </div>
-            <canvas id="tamuChart" width="100" height="60"></canvas>
+
+             <!-- WADAH GRAFIK RESPONSIF (BARU) -->
+             <div style="position: relative; height: 300px; width: 100%;">
+                 <canvas id="tamuChart"></canvas>
+             </div>
         </div>
     </div>
 
