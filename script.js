@@ -894,6 +894,15 @@ function switchTab(tab) {
         document.getElementById('app-title').innerText = "Daftar Tamu";
         fab.classList.remove('hidden'); terapkanFilterTamu();
     }
+    else if(tab === 'galeri') {
+            document.getElementById('screen-galeri').classList.add('active');
+            document.querySelectorAll('.nav-item')[2].classList.add('active');
+            document.getElementById('app-title').innerText = "Galeri";
+            fab.classList.add('hidden');
+
+            // Memanggil data dari Google Drive!
+            muatGaleriDariDrive();
+    }
     else if(tab === 'settings') {
         document.getElementById('screen-settings').classList.add('active');
         document.querySelectorAll('.nav-item')[2].classList.add('active');
@@ -925,6 +934,7 @@ function switchTab(tab) {
         document.getElementById('app-title').innerText = "Informasi";
         fab.classList.add('hidden'); // Menyembunyikan tombol + agar layar rapi
     }
+
 }
 
 fetchDataFromSheet();
@@ -1208,4 +1218,123 @@ function kirimRekapWhatsApp() {
     // 4. Buka WhatsApp
     let urlWhatsApp = `https://api.whatsapp.com/send?text=${encodeURIComponent(teksLaporan)}`;
     window.open(urlWhatsApp, '_blank');
+}
+
+/* ==========================================
+   FITUR GALERI & LIGHTBOX (TERHUBUNG KE GOOGLE DRIVE)
+   ========================================== */
+
+// MASUKKAN TAUTAN GOOGLE APPS SCRIPT-MU DI SINI!
+const SCRIPT_GALERI_URL = 'https://script.google.com/macros/s/AKfycbyyQS-CwGlws0yH-CyILP9yHJCcJ5drQcfi4MVCCLoiS3gksJSoqE992UiWxrM4KInt/exec';
+
+let dataGaleri = [];
+let indexFotoAktif = 0;
+
+// Fungsi 1: Mengambil semua daftar gambar dari Google Drive saat tab Galeri dibuka
+async function muatGaleriDariDrive() {
+    let container = document.getElementById('gallery-grid');
+    container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; margin-top: 40px;">Memuat foto dari satelit... 🛰️</div>';
+
+    try {
+        const response = await fetch(SCRIPT_GALERI_URL);
+        dataGaleri = await response.json();
+        renderGaleri();
+    } catch (error) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #ff5252; margin-top: 40px;">Gagal memuat galeri. Periksa koneksi internet.</div>';
+    }
+}
+
+// Fungsi 2: Merender (menampilkan) gambar ke layar
+function renderGaleri() {
+    let container = document.getElementById('gallery-grid');
+    container.innerHTML = '';
+
+    if (dataGaleri.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #888; margin-top: 40px;">Belum ada foto. Silakan unggah.</div>';
+        return;
+    }
+
+    dataGaleri.forEach((urlGambar, index) => {
+        let img = document.createElement('img');
+        img.src = urlGambar;
+        img.className = 'gallery-item';
+        img.loading = 'lazy'; // Meringankan kuota internet
+        img.onclick = () => bukaLightbox(index);
+        container.appendChild(img);
+    });
+}
+
+// Fungsi 3: Memproses upload foto dan mengirimnya ke Google Drive
+function prosesUploadFoto(event) {
+    let files = event.target.files;
+    if (files.length === 0) return;
+
+    let file = files[0]; // Untuk versi ini, kita upload 1 per 1 agar stabil
+    showNotification("Mengunggah gambar ke Drive... ⏳");
+
+    let reader = new FileReader();
+    reader.onload = async function(e) {
+        let base64Data = e.target.result;
+
+        try {
+            const response = await fetch(SCRIPT_GALERI_URL, {
+                method: 'POST',
+                body: JSON.stringify({
+                    nama: file.name,
+                    base64: base64Data
+                })
+            });
+
+            const hasil = await response.json();
+
+            if (hasil.status === 'sukses') {
+                showNotification("Gambar berhasil diunggah! ✅");
+                dataGaleri.push(hasil.url); // Tambahkan ke daftar
+                renderGaleri(); // Perbarui tampilan
+            } else {
+                showNotification("Gagal: " + hasil.pesan);
+            }
+        } catch (error) {
+            showNotification("Terjadi kesalahan saat mengunggah.");
+        }
+    };
+
+    // Mengonversi gambar menjadi teks sandi Base64
+    reader.readAsDataURL(file);
+}
+
+// --- FUNGSI LIGHTBOX (Tetap Sama Seperti Sebelumnya) ---
+function bukaLightbox(index) {
+    indexFotoAktif = index;
+    document.getElementById('lightbox').style.display = 'flex';
+    perbaruiTampilanLightbox();
+}
+
+function tutupLightbox() {
+    document.getElementById('lightbox').style.display = 'none';
+}
+
+function geserFoto(arah) {
+    indexFotoAktif += arah;
+    if (indexFotoAktif < 0) indexFotoAktif = dataGaleri.length - 1;
+    if (indexFotoAktif >= dataGaleri.length) indexFotoAktif = 0;
+    perbaruiTampilanLightbox();
+}
+
+function perbaruiTampilanLightbox() {
+    document.getElementById('lightbox-main-img').src = dataGaleri[indexFotoAktif];
+    let thumbContainer = document.getElementById('lightbox-thumbnails');
+    thumbContainer.innerHTML = '';
+
+    dataGaleri.forEach((urlGambar, index) => {
+        let img = document.createElement('img');
+        img.src = urlGambar;
+        img.className = 'thumb-item';
+        if (index === indexFotoAktif) img.classList.add('active');
+        img.onclick = () => {
+            indexFotoAktif = index;
+            perbaruiTampilanLightbox();
+        };
+        thumbContainer.appendChild(img);
+    });
 }

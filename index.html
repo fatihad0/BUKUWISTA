@@ -131,6 +131,40 @@
 
     </div>
 
+    <!-- LAYAR 10: GALERI -->
+    <div id="screen-galeri" class="screen">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <h2 style="margin: 0; font-size: 18px; color: var(--primary-color);"></h2>
+            <!-- Tombol Upload (Memicu input file tersembunyi) -->
+            <button onclick="document.getElementById('upload-input').click()" style="background: var(--primary-color); color: white; border: none; padding: 8px 16px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: bold;">
+                <i class="material-icons">cloud_upload</i> Upload
+            </button>
+            <input type="file" id="upload-input" accept="image/*" multiple style="display: none;" onchange="prosesUploadFoto(event)">
+        </div>
+
+        <!-- Wadah Grid Foto -->
+        <div id="gallery-grid" class="gallery-grid">
+            <!-- Foto akan muncul di sini -->
+        </div>
+    </div>
+
+    <!-- ELEMEN LIGHTBOX (Layar Penuh) -->
+    <div id="lightbox" class="lightbox" style="display: none;">
+        <button class="lightbox-close" onclick="tutupLightbox()"><i class="material-icons">close</i></button>
+
+        <div class="lightbox-content">
+            <button class="lightbox-nav nav-left" onclick="geserFoto(-1)"><i class="material-icons">chevron_left</i></button>
+            <img id="lightbox-main-img" src="" alt="Foto Besar">
+            <button class="lightbox-nav nav-right" onclick="geserFoto(1)"><i class="material-icons">chevron_right</i></button>
+        </div>
+
+        <!-- Barisan Thumbnail di Bawah -->
+        <div class="lightbox-thumbnails" id="lightbox-thumbnails">
+            <!-- Thumbnail akan di-render di sini -->
+        </div>
+    </div>
+    <!-- AKHIR LAYAR 10 -->
+
     <!-- LAYAR 4: FORM INPUT TAMU -->
     <div id="screen-form" class="screen">
         <form id="f">
@@ -247,6 +281,7 @@
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchTab('beranda')"><i class="material-icons">home</i><span>Beranda</span></div>
         <div class="nav-item" onclick="switchTab('list')"><i class="material-icons">format_list_bulleted</i><span>Daftar Tamu</span></div>
+        <div class="nav-item" onclick="switchTab('galeri')" style="width: 25%;"><i class="material-icons">photo_library</i><span>Galeri Wista</span></div>
         <div class="nav-item" onclick="switchTab('settings')"><i class="material-icons">settings</i><span>Pengaturan</span></div>
     </div>
 
